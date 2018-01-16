@@ -17,53 +17,47 @@ namespace hwapp
     {
         static void Main(string[] args)
         {
-           // var summary = BenchmarkRunner.Run<IntroIParam>();
+            new Program().TestBothResizeApisOnDefaultInput();
+           //var summary = BenchmarkRunner.Run<IntroIParam>();
+        }
 
-            var rand = new Random(42);
-            var generator = new CustomizableInputGenerator();
+        /// <summary>
+        /// Call input and test Resize won't change dictionary
+        /// Compare contents after Resize (count and enumerate and compare)
+        /// </summary>
+        public void TestBothResizeApisOnDefaultInput()
+        {
+            CustomDictionary<int, int> _dictionary;
+            var iparams = new IntroIParam().InParameters();
+            foreach (var inp in iparams)
+            {
+                Console.WriteLine(inp.name);
+                _dictionary = DeserializeData(inp.dictstring);
+                var orderedKeys = new List<int>();
+                var orderedValues = new List<int>();
+                foreach (var item in _dictionary)
+                {
+                    orderedKeys.Add(item.Key);
+                    orderedValues.Add(item.Value);
+                }
+                AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
-            var dict = generator.WithZombiesAtEnd(rand, 10000, 2000);
-            dict.EnsureCapacity(0);
-            var inputElement = new InputElements(nameof(generator.WithZombiesAtEnd), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
+                _dictionary.ResizeOld(inp.trimSize, false);
+                AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
-            dict = generator.WithZombiesAtFront(rand, 10000, 2000);
-            inputElement = new InputElements(nameof(generator.WithZombiesAtFront), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
+                _dictionary = DeserializeData(inp.dictstring);
+                orderedKeys = new List<int>();
+                orderedValues = new List<int>();
+                foreach (var item in _dictionary)
+                {
+                    orderedKeys.Add(item.Key);
+                    orderedValues.Add(item.Value);
+                }
+                AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.5f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.1f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.9f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-
-            dict = generator.WithDictionaryFull(rand, 10000);
-            inputElement = new InputElements(nameof(generator.WithDictionaryFull), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-
-            dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, 10000, 20000);
-            inputElement = new InputElements(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), SerializeJobData(dict), 10000, dict.Count);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
-            dict.Resize2(dict.Count, false);
-            Console.WriteLine($"inputElement {inputElement} cap {dict.EnsureCapacity(0)}");
+                _dictionary.Resize(inp.trimSize, false);
+                AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
+            }
         }
 
         private static void AssertDictionaryEnumerateAndCountRemainsUnchanged(
@@ -149,38 +143,77 @@ namespace MyBenchmarks
 
         public IEnumerable<IParam> Parameters()
         {
+            foreach (var inputElement in InParameters())
+            {
+                yield return new CustomParam(inputElement);
+            }
+        }
+
+        public IEnumerable<InputElements> InParameters()
+        {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator();
-                        
-            var dict = generator.WithZombiesAtEnd(rand, 10000, 2000);
-            dict.EnsureCapacity(0);
-            var inputElement = new InputElements(nameof(generator.WithZombiesAtEnd), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+            int[] counts = { 10000, 100 };
+            float[] initCapacityPercentages = { 0.5f, 1.0f, 2.0f };
 
-            dict = generator.WithZombiesAtFront(rand, 10000, 2000);
-            inputElement = new InputElements(nameof(generator.WithZombiesAtFront), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+            foreach (var count in counts)
+            {
+                foreach (var perc in initCapacityPercentages)
+                {
+                    var dict = generator.WithZombiesAtEnd(rand, count, (int)0.2 * count, perc);
+                    dict.EnsureCapacity(0);
+                    var inputElement = new InputElements(GetName(nameof(generator.WithZombiesAtEnd), perc), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.5f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+                    dict = generator.WithZombiesAtFront(rand, count, (int)0.2 * count, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithZombiesAtFront), perc), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.1f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+                    dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.5f, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
-            dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.9f);
-            inputElement = new InputElements(nameof(generator.WithPercentageAsZombiesAtRandom), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+                    dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.1f, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
-            dict = generator.WithDictionaryFull(rand, 10000);
-            inputElement = new InputElements(nameof(generator.WithDictionaryFull), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+                    dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.9f, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
-            dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, 10000, 20000);
-            inputElement = new InputElements(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), SerializeJobData(dict), 10000, dict.Count);
-            yield return new CustomParam(inputElement);
+                    dict = generator.WithDictionaryFull(rand, count, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryFull), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 2 * count, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, count, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, (int)(0.5 * count), perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 10, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 3, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+
+                    dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 1, perc);
+                    inputElement = new InputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(dict), 10000, dict.Count);
+                    yield return inputElement;
+                }
+            }
         }
+
+        private string GetName(string name, float percentage)
+        { return $"{name} {percentage}"; }
 
         #region serializing
 
@@ -248,10 +281,16 @@ namespace MyBenchmarks
         #endregion
 
         [Benchmark]
-        public void Benchmark() => DeserializeData(Field.dictstring).Resize2(Field.trimSize, false);
+        public void Benchmark()
+        {
+            DeserializeData(Field.dictstring).Resize(Field.trimSize, false);
+        }
 
         [Benchmark]
-        public void Benchmark2() => DeserializeData(Field.dictstring).Resize(Field.trimSize, false);
+        public void Benchmark2()
+        {
+            DeserializeData(Field.dictstring).ResizeOld(Field.trimSize, false);
+        }
     }
 
     /*

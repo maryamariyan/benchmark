@@ -524,6 +524,22 @@ namespace hwapp
             return -1;
         }
 
+        private int InitializeOld(int capacity)
+        {
+            int size = HashHelpers.GetPrime(capacity);
+            int[] buckets = new int[size];
+            for (int i = 0; i < buckets.Length; i++)
+            {
+                buckets[i] = -1;
+            }
+
+            _freeList = -1;
+            _buckets = buckets;
+            _entries = new Entry[size];
+
+            return size;
+        }
+
         private int Initialize(int capacity)
         {
             int size = HashHelpers.GetPrime(capacity);
@@ -538,6 +554,78 @@ namespace hwapp
             _entries = new Entry[size];
 
             return size;
+        }
+
+        private bool TryInsertOld(TKey key, TValue value, InsertionBehavior behavior)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException();
+                //ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
+
+            if (_buckets == null) Initialize(0);
+            int hashCode = _comparer.GetHashCode(key) & 0x7FFFFFFF;
+            int targetBucket = hashCode % _buckets.Length;
+            int collisionCount = 0;
+
+            for (int i = _buckets[targetBucket]; i >= 0; i = _entries[i].next)
+            {
+                if (_entries[i].hashCode == hashCode && _comparer.Equals(_entries[i].key, key))
+                {
+                    if (behavior == InsertionBehavior.OverwriteExisting)
+                    {
+                        _entries[i].value = value;
+                        _version++;
+                        return true;
+                    }
+
+                    if (behavior == InsertionBehavior.ThrowOnExisting)
+                    {
+                        throw new ArgumentException();
+                        //ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
+                    }
+
+                    return false;
+                }
+                collisionCount++;
+            }
+
+            int index;
+            if (_freeCount > 0)
+            {
+                index = _freeList;
+                _freeList = _entries[index].next;
+                _freeCount--;
+            }
+            else
+            {
+                if (_count == _entries.Length)
+                {
+                    ResizeOld();
+                    targetBucket = hashCode % _buckets.Length;
+                }
+                index = _count;
+                _count++;
+            }
+
+            _entries[index].hashCode = hashCode;
+            _entries[index].next = _buckets[targetBucket];
+            _entries[index].key = key;
+            _entries[index].value = value;
+            _buckets[targetBucket] = index;
+            _version++;
+
+            // If we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
+            // i.e. EqualityComparer<string>.Default.
+
+            if (collisionCount > HashHelpers.HashCollisionThreshold)//&& _comparer is NonRandomizedStringEqualityComparer)
+            {
+                _comparer = (IEqualityComparer<TKey>)EqualityComparer<string>.Default;
+                ResizeOld(_entries.Length, true);
+            }
+
+            return true;
         }
 
         private bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
@@ -665,7 +753,12 @@ namespace hwapp
             Resize(HashHelpers.ExpandPrime(_count), false);
         }
 
-        public void Resize2(int newSize, bool forceNewHashCodes)
+        private void ResizeOld()
+        {
+            ResizeOld(HashHelpers.ExpandPrime(_count), false);
+        }
+
+        public void Resize(int newSize, bool forceNewHashCodes)
         {
             int[] buckets = new int[newSize];
             for (int i = 0; i < buckets.Length; i++)
@@ -710,7 +803,7 @@ namespace hwapp
             _entries = entries;
         }
 
-        public void Resize(int newSize, bool forceNewHashCodes)
+        public void ResizeOld(int newSize, bool forceNewHashCodes)
         {
             int[] buckets = new int[newSize];
             for (int i = 0; i < buckets.Length; i++)
@@ -873,6 +966,8 @@ namespace hwapp
             return false;
         }
 
+        public bool TryAddOld(TKey key, TValue value) => TryInsertOld(key, value, InsertionBehavior.None);
+
         public bool TryAdd(TKey key, TValue value) => TryInsert(key, value, InsertionBehavior.None);
 
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
@@ -981,6 +1076,22 @@ namespace hwapp
                 return Initialize(capacity);
             int newSize = HashHelpers.GetPrime(capacity);
             Resize(newSize, forceNewHashCodes: false);
+            return newSize;
+        }
+
+        /// <summary>
+        /// Ensures that the dictionary can hold up to 'capacity' entries without any further expansion of its backing storage
+        /// </summary>
+        public int EnsureCapacityOld(int capacity)
+        {
+            if (capacity < 0)
+                throw new Exception(); //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
+            if (_entries != null && _entries.Length >= capacity)
+                return _entries.Length;
+            if (_buckets == null)
+                return InitializeOld(capacity);
+            int newSize = HashHelpers.GetPrime(capacity);
+            ResizeOld(newSize, forceNewHashCodes: false);
             return newSize;
         }
 

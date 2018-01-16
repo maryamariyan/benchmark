@@ -28,9 +28,9 @@ namespace MyBenchmarks
             }
         }
 
-        public CustomDictionary<int, int> WithPercentageAsZombiesAtRandom(Random rand, int size, float percentage)
+        public CustomDictionary<int, int> WithPercentageAsZombiesAtRandom(Random rand, int size, float percentage, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>(size);
+            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             var keysToRemove = new HashSet<int>();
             int key;
             int maxRandValue = 100000;
@@ -56,9 +56,9 @@ namespace MyBenchmarks
         /// <summary>
         /// With zombies at front
         /// </summary>
-        public CustomDictionary<int,int> WithZombiesAtFront(Random rand, int size, int removeCount)
+        public CustomDictionary<int,int> WithZombiesAtFront(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>(size);
+            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             var keysToRemove = new HashSet<int>();
 
             int r;
@@ -82,9 +82,9 @@ namespace MyBenchmarks
         /// <summary>
         /// With zombies at front
         /// </summary>
-        public CustomDictionary<int, int> WithZombiesAtEnd(Random rand, int size, int removeCount)
+        public CustomDictionary<int, int> WithZombiesAtEnd(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>(size);
+            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             var keysToRemove = new HashSet<int>();
 
             int r;
@@ -105,9 +105,9 @@ namespace MyBenchmarks
             return input;
         }
 
-        public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount)
+        public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>(size);
+            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             for (int i = 0; i < size; i++)
             {
                 input.TryAdd(rand.Next(), rand.Next());
@@ -122,9 +122,9 @@ namespace MyBenchmarks
             return input;
         }
 
-        public CustomDictionary<int, int> WithDictionaryFull(Random rand, int size)
+        public CustomDictionary<int, int> WithDictionaryFull(Random rand, int size, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>(size);
+            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             for (int i = 0; i < size; i++)
             {
                 input.TryAdd(rand.Next(), rand.Next());
