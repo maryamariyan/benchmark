@@ -32,19 +32,16 @@ namespace MyBenchmarks
         {
             var input = new CustomDictionary<int, int>(size);
             var keysToRemove = new HashSet<int>();
-            
             int key;
             int maxRandValue = 100000;
-            int acceptableRandValue = (int)(maxRandValue * percentage);
+            int goodRange = (int)(maxRandValue * percentage);
             for (int i = 0; i < size; i++)
             {
                 key = rand.Next(maxRandValue);
-                if (key < acceptableRandValue)
+                while (!input.TryAdd(key, rand.Next()))
+                    key = rand.Next(maxRandValue);
+                if (key < goodRange)
                 {
-                    while (!input.TryAdd(key, rand.Next()))
-                    {
-                        key = rand.Next(acceptableRandValue);
-                    }   
                     keysToRemove.Add(key);
                 }
             }
@@ -96,8 +93,7 @@ namespace MyBenchmarks
                 r = rand.Next();
                 while (!input.TryAdd(r, rand.Next()))
                     r = rand.Next();
-                input.TryAdd(r, rand.Next());
-                if (i > size - removeCount)
+                if (i >= size - removeCount)
                 {
                     keysToRemove.Add(r);
                 }

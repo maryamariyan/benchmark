@@ -710,19 +710,6 @@ namespace hwapp
             _entries = entries;
         }
 
-
-        public void ResizeX(int newSize, bool forceNewHashCodes)
-        {
-            //if (newSize > _count)
-            //{
-            //    Resize(newSize, forceNewHashCodes);
-            //}
-            //else
-            //{
-            //    Resize(_count, forceNewHashCodes);
-            //}
-        }
-
         public void Resize(int newSize, bool forceNewHashCodes)
         {
             int[] buckets = new int[newSize];
