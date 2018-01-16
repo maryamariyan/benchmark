@@ -20,22 +20,8 @@ namespace hwapp
             // new Resize1VsResize2().TestBothResizeApisOnDefaultInput();
 
             //check implemented resize no worse on any input
-
-
-            var rand = new Random(42);
-            var generator = new CustomizableInputGenerator();
-            var dict = generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.5f);
-            string rawdata = SerializeJobData(dict);
-            Console.WriteLine($"rawdata {rawdata}");
-            var dict2 = DeserializeData(rawdata);
-            TestBothDictionaryHaveSameEnumeration(dict, dict2);
-
-            string rawdata2 = ToBase64String(new DataItem[] { new DataItem(123, 321), new DataItem(123, 321) });
-            Console.WriteLine($"rawdata on dataitem {rawdata}");
-            var item = (DataItem[])FromBase64String(rawdata2);
-            Console.WriteLine($"rawdata back {item[0]} and {item[1]}");
-
-            //var summary = BenchmarkRunner.Run<IntroIParam>();
+            
+            var summary = BenchmarkRunner.Run<IntroIParam>();
         }
 
         private static void AssertDictionaryEnumerateAndCountRemainsUnchanged(
@@ -93,7 +79,6 @@ namespace MyBenchmarks
 
             public InputElements(string dictionarystring, int orig, int trim)
             {
-                Console.WriteLine(dictionarystring);
                 dictstring = dictionarystring;
 
                 // deserialize from string
@@ -115,7 +100,7 @@ namespace MyBenchmarks
             public string DisplayText => $"({value.dictstring},{value.origSize},{value.trimSize})";
 
             // serializes my object to string
-            public string ToSourceCode() => $"new InputElements({value.dictstring}, {value.origSize}, {value.trimSize})";
+            public string ToSourceCode() => $"new InputElements(\"{value.dictstring}\", {value.origSize}, {value.trimSize})";
         }
 
         [ParamsSource(nameof(Parameters))]
@@ -138,7 +123,6 @@ namespace MyBenchmarks
 
         public static string SerializeJobData(CustomDictionary<int, int> myDictionary)
         {
-            Console.WriteLine("a");
             var tempdataitems = new DataItem[myDictionary.Count];
 
             int i = 0;
@@ -162,7 +146,6 @@ namespace MyBenchmarks
 
         public static CustomDictionary<int,int> DeserializeData(string RawData)
         {
-            Console.WriteLine("c");
             CustomDictionary<int, int> myDictionary = new CustomDictionary<int, int>();
             var templist = (DataItem[])FromBase64String(RawData);
 
@@ -173,7 +156,6 @@ namespace MyBenchmarks
             {
                 myDictionary.Add(di.Key, di.Value);
             }
-            Console.WriteLine("d");
             return myDictionary;
         }
 
