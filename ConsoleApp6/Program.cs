@@ -17,8 +17,19 @@ namespace hwapp
     {
         static void Main(string[] args)
         {
-           // new Program().TestBothResizeApisOnDefaultInput();
-           var summary = BenchmarkRunner.Run<IntroIParam>();
+            //new Program().TestBothResizeApisOnDefaultInput();
+            var summary = BenchmarkRunner.Run<IntroIParam>();
+
+            //var rand = new Random(42);
+            //var generator = new CustomizableInputGenerator();
+            //int count = 100;
+            //float perc = 0.0f;
+
+            //var diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.1f, perc);
+            //var dict = generator.WithPercentageAsZombiesAtRandomCurrent(rand, count, 0.1f, perc);
+            //var inputElement = new ResizeInputElements($"({nameof(generator.WithPercentageAsZombiesAtRandomCurrent)} {perc}", SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+            //var dic = DeserializeDataDiff(inputElement.diffstring);
+            //dic.Resize(inputElement.addOrResizeSize, false);
         }
 
         /// <summary>
@@ -155,8 +166,8 @@ namespace MyBenchmarks
         {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator();
-            int[] counts = { /*10000, */1000,100 };
-            float[] initCapacityPercentages = {0.0f, 0.5f, 1.0f, 2.0f };
+            int[] counts = { /*10000, 1000,*/100 };
+            float[] initCapacityPercentages = {0.0f/*, 0.5f, 1.0f, 2.0f */};
 
             foreach (var count in counts)
             {
@@ -232,51 +243,53 @@ namespace MyBenchmarks
 
         public static string SerializeJobData(CustomDictionary<int, int> myDictionary)
         {
-            var tempdataitems = new DataItem[myDictionary.Count];
+            //var tempdataitems = new DataItem[myDictionary.Count];
 
-            int i = 0;
-            foreach (int key in myDictionary.Keys)
-            {
-                tempdataitems[i] = new DataItem(key, myDictionary[key]);
-                i++;
-            }
+            //int i = 0;
+            //foreach (int key in myDictionary.Keys)
+            //{
+            //    tempdataitems[i] = new DataItem(key, myDictionary[key]);
+            //    i++;
+            //}
 
-            return ToBase64String(tempdataitems);
+            return ToBase64String(myDictionary);
         }
 
         public static CustomDictionary<int, int> DeserializeData(string RawData)
         {
-            CustomDictionary<int, int> myDictionary = new CustomDictionary<int, int>();
-            var templist = (DataItem[])FromBase64String(RawData);
-            foreach (DataItem di in templist)
-            {
-                myDictionary.Add(di.Key, di.Value);
-            }
+            CustomDictionary<int, int> myDictionary = (CustomDictionary<int, int>)FromBase64String(RawData);
+            //CustomDictionary<int, int> myDictionary = new CustomDictionary<int, int>();
+            //var templist = (DataItem[])FromBase64String(RawData);
+            //foreach (DataItem di in templist)
+            //{
+            //    myDictionary.Add(di.Key, di.Value);
+            //}
             return myDictionary;
         }
         
         public static string SerializeJobData(DifferentDictionary<int, int> myDictionary)
         {
-            var tempdataitems = new DataItem[myDictionary.Count];
+            //var tempdataitems = new DataItem[myDictionary.Count];
 
-            int i = 0;
-            foreach (int key in myDictionary.Keys)
-            {
-                tempdataitems[i] = new DataItem(key, myDictionary[key]);
-                i++;
-            }
+            //int i = 0;
+            //foreach (int key in myDictionary.Keys)
+            //{
+            //    tempdataitems[i] = new DataItem(key, myDictionary[key]);
+            //    i++;
+            //}
 
-            return ToBase64String(tempdataitems);
+            return ToBase64String(myDictionary);
         }
 
         public static DifferentDictionary<int, int> DeserializeDataDiff(string RawData)
         {
-            DifferentDictionary<int, int> myDictionary = new DifferentDictionary<int, int>();
-            var templist = (DataItem[])FromBase64String(RawData);
-            foreach (DataItem di in templist)
-            {
-                myDictionary.Add(di.Key, di.Value);
-            }
+            DifferentDictionary<int, int> myDictionary = (DifferentDictionary<int, int>)FromBase64String(RawData);
+            //DifferentDictionary<int, int> myDictionary = new DifferentDictionary<int, int>();
+            //var templist = (DataItem[])FromBase64String(RawData);
+            //foreach (DataItem di in templist)
+            //{
+            //    myDictionary.Add(di.Key, di.Value);
+            //}
             return myDictionary;
         }
 
@@ -321,20 +334,20 @@ namespace MyBenchmarks
         [Benchmark]
         public void ResizeNew()
         {
-            DeserializeData(Field.dictstring).Resize(Field.addOrResizeSize, false);
+            DeserializeDataDiff(Field.diffstring).Resize(Field.addOrResizeSize, false);
         }
 
         [Benchmark]
         public void ResizeOld()
         {
-            DeserializeDataDiff(Field.dictstring).Resize(Field.addOrResizeSize, false);
+            DeserializeData(Field.dictstring).Resize(Field.addOrResizeSize, false);
         }
 
         [Benchmark]
         public void AddNew()
         {
             Random rand = new Random(42);
-            var d = DeserializeData(Field.dictstring);
+            var d = DeserializeDataDiff(Field.diffstring);
             for (int i = 0; i < Field.addOrResizeSize; i++)
             {
                 d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
@@ -345,10 +358,48 @@ namespace MyBenchmarks
         public void AddOld()
         {
             Random rand = new Random(42);
-            var d = DeserializeDataDiff(Field.dictstring);
+            var d = DeserializeData(Field.dictstring);
             for (int i = 0; i < Field.addOrResizeSize; i++)
             {
                 d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
+            }
+        }
+
+        [Benchmark]
+        public void AddAndRemoveNew()
+        {
+            var set = new HashSet<int>();
+            int x;
+            Random rand = new Random(42);
+            var d = DeserializeDataDiff(Field.diffstring);
+            for (int i = 0; i < Field.addOrResizeSize; i++)
+            {
+                x = rand.Next(1073741824, int.MaxValue);
+                if(d.TryAdd(x, rand.Next()))
+                    set.Add(x);
+            }
+            foreach (var item in set)
+            {
+                d.Remove(item);
+            }
+        }
+
+        [Benchmark]
+        public void AddAndRemoveOld()
+        {
+            var set = new HashSet<int>();
+            int x;
+            Random rand = new Random(42);
+            var d = DeserializeData(Field.dictstring);
+            for (int i = 0; i < Field.addOrResizeSize; i++)
+            {
+                x = rand.Next(1073741824, int.MaxValue);
+                if (d.TryAdd(x, rand.Next()))
+                    set.Add(x);
+            }
+            foreach (var item in set)
+            {
+                d.Remove(item);
             }
         }
     }

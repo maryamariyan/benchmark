@@ -37,7 +37,6 @@ namespace hwapp
 
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    [System.Runtime.CompilerServices.TypeForwardedFrom("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")]
     public class DifferentDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
     {
         private struct Entry
@@ -137,13 +136,13 @@ namespace hwapp
             }
         }
 
-        //protected DifferentDictionary(SerializationInfo info, StreamingContext context)
-        //{
-        //    // We can't do anything with the keys and values until the entire graph has been deserialized
-        //    // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
-        //    // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
-        //    HashHelpers.SerializationInfoTable.Add(this, info);
-        //}
+        protected DifferentDictionary(SerializationInfo info, StreamingContext context)
+        {
+            // We can't do anything with the keys and values until the entire graph has been deserialized
+            // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
+            // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
+            HashHelpers.SerializationInfoTable.Add(this, info);
+        }
 
         public IEqualityComparer<TKey> Comparer
         {
@@ -1595,7 +1594,6 @@ namespace hwapp
 
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    [System.Runtime.CompilerServices.TypeForwardedFrom("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")]
     public class CustomDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
     {
         private struct Entry
@@ -1695,13 +1693,13 @@ namespace hwapp
             }
         }
 
-        //protected CustomDictionary(SerializationInfo info, StreamingContext context)
-        //{
-        //    // We can't do anything with the keys and values until the entire graph has been deserialized
-        //    // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
-        //    // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
-        //    HashHelpers.SerializationInfoTable.Add(this, info);
-        //}
+        protected CustomDictionary(SerializationInfo info, StreamingContext context)
+        {
+            // We can't do anything with the keys and values until the entire graph has been deserialized
+            // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
+            // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
+            HashHelpers.SerializationInfoTable.Add(this, info);
+        }
 
         public IEqualityComparer<TKey> Comparer
         {
