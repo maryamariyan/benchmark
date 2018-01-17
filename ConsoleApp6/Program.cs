@@ -42,7 +42,7 @@ namespace hwapp
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
-                _dictionary.Resize(inp.trimSize, false);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionary = DeserializeData(inp.dictstring);
@@ -55,7 +55,7 @@ namespace hwapp
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
-                _dictionary.Resize(inp.trimSize, false);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
             }
         }
@@ -113,7 +113,7 @@ namespace MyBenchmarks
             public readonly string diffstring;
             public readonly string name;
             public readonly int origSize;
-            public readonly int trimSize;
+            public readonly int addOrResizeSize;
 
             public ResizeInputElements(string nam, string diffdictstring, string dictionarystring, int orig, int trim)
             {
@@ -121,7 +121,7 @@ namespace MyBenchmarks
                 diffstring = diffdictstring;
                 dictstring = dictionarystring;
                 origSize = orig;
-                trimSize = trim;
+                addOrResizeSize = trim;
             }
 
         }
@@ -134,10 +134,10 @@ namespace MyBenchmarks
 
             public object Value => value;
 
-            public string DisplayText => $"({value.name},{value.origSize},{value.trimSize})";
+            public string DisplayText => $"({value.name},{value.origSize},{value.addOrResizeSize})";
 
             // serializes my object to string
-            public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", {value.origSize}, {value.trimSize})";
+            public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", {value.origSize}, {value.addOrResizeSize})";
         }
 
         [ParamsSource(nameof(Parameters))]
@@ -155,8 +155,8 @@ namespace MyBenchmarks
         {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator();
-            int[] counts = { /*10000, */100 };
-            float[] initCapacityPercentages = { 0.5f, 1.0f, 2.0f };
+            int[] counts = { /*10000, */1000,100 };
+            float[] initCapacityPercentages = {0.0f, 0.5f, 1.0f, 2.0f };
 
             foreach (var count in counts)
             {
@@ -321,16 +321,36 @@ namespace MyBenchmarks
         [Benchmark]
         public void ResizeNew()
         {
-            DeserializeData(Field.dictstring).Resize(Field.trimSize, false);
+            DeserializeData(Field.dictstring).Resize(Field.addOrResizeSize, false);
         }
 
         [Benchmark]
         public void ResizeOld()
         {
-            DeserializeDataDiff(Field.dictstring).Resize(Field.trimSize, false);
+            DeserializeDataDiff(Field.dictstring).Resize(Field.addOrResizeSize, false);
         }
 
+        [Benchmark]
+        public void AddNew()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeData(Field.dictstring);
+            for (int i = 0; i < Field.addOrResizeSize; i++)
+            {
+                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
+            }
+        }
 
+        [Benchmark]
+        public void AddOld()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeDataDiff(Field.dictstring);
+            for (int i = 0; i < Field.addOrResizeSize; i++)
+            {
+                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
+            }
+        }
     }
 
     /*
@@ -391,10 +411,10 @@ namespace MyBenchmarks
         public ResizeInputElements A { get; set; }
 
 //        [Benchmark]
-        public void Resize1() => A.dict.ResizeX(A.trimSize, false);
+        public void Resize1() => A.dict.ResizeX(A.addOrResizeSize, false);
 
 //        [Benchmark]
-        public void Resize2() => A.dict.Resize2(A.trimSize, false);
+        public void Resize2() => A.dict.Resize2(A.addOrResizeSize, false);
         
         private void AssertDictionaryEnumerateAndCountRemainsUnchanged(
             List<int> orderedKeys,

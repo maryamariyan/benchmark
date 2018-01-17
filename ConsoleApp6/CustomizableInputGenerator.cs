@@ -30,10 +30,18 @@ namespace MyBenchmarks
 
         public DifferentDictionary<int, int> WithPercentageAsZombiesAtRandomDiff(Random rand, int size, float percentage, float initCapacityPercentage)
         {
-            var input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            DifferentDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             var keysToRemove = new HashSet<int>();
             int key;
-            int maxRandValue = 100000;
+            int maxRandValue = 1073741823;
             int goodRange = (int)(maxRandValue * percentage);
             for (int i = 0; i < size; i++)
             {
@@ -51,22 +59,30 @@ namespace MyBenchmarks
             }
             return input;
         }
-
-
+        
         /// <summary>
         /// With zombies at front
         /// </summary>
         public DifferentDictionary<int,int> WithZombiesAtFrontDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            DifferentDictionary<int,int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
+
             var keysToRemove = new HashSet<int>();
 
             int r;
             for (int i = 0; i < size; i++)
             {
-                r = rand.Next();
+                r = rand.Next(1073741823);
                 while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next();
+                    r = rand.Next(1073741823);
                 if (i < removeCount)
                 {
                     keysToRemove.Add(r);
@@ -84,15 +100,23 @@ namespace MyBenchmarks
         /// </summary>
         public DifferentDictionary<int, int> WithZombiesAtEndDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            DifferentDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             var keysToRemove = new HashSet<int>();
 
             int r;
             for (int i = 0; i < size; i++)
             {
-                r = rand.Next();
+                r = rand.Next(1073741823);
                 while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next();
+                    r = rand.Next(1073741823);
                 if (i >= size - removeCount)
                 {
                     keysToRemove.Add(r);
@@ -107,16 +131,24 @@ namespace MyBenchmarks
 
         public DifferentDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgainDiff(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
-            var input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            DifferentDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             for (int i = 0; i < size; i++)
             {
-                input.TryAdd(rand.Next(), rand.Next());
+                input.TryAdd(rand.Next(1073741823), rand.Next());
             }
             input.Clear();
 
             for (int i = 0; i < addAgainCount; i++)
             {
-                while (!input.TryAdd(rand.Next(), rand.Next())) ;
+                while (!input.TryAdd(rand.Next(1073741823), rand.Next())) ;
             }
 
             return input;
@@ -124,10 +156,18 @@ namespace MyBenchmarks
 
         public DifferentDictionary<int, int> WithDictionaryFullDiff(Random rand, int size, float initCapacityPercentage)
         {
-            var input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            DifferentDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             for (int i = 0; i < size; i++)
             {
-                input.TryAdd(rand.Next(), rand.Next());
+                input.TryAdd(rand.Next(1073741823), rand.Next());
             }
             
             return input;
@@ -157,10 +197,18 @@ namespace MyBenchmarks
 
         public CustomDictionary<int, int> WithPercentageAsZombiesAtRandomCurrent(Random rand, int size, float percentage, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             var keysToRemove = new HashSet<int>();
             int key;
-            int maxRandValue = 100000;
+            int maxRandValue = 1073741823;
             int goodRange = (int)(maxRandValue * percentage);
             for (int i = 0; i < size; i++)
             {
@@ -185,15 +233,23 @@ namespace MyBenchmarks
         /// </summary>
         public CustomDictionary<int, int> WithZombiesAtFrontCurrent(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             var keysToRemove = new HashSet<int>();
 
             int r;
             for (int i = 0; i < size; i++)
             {
-                r = rand.Next();
+                r = rand.Next(1073741823);
                 while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next();
+                    r = rand.Next(1073741823);
                 if (i < removeCount)
                 {
                     keysToRemove.Add(r);
@@ -211,15 +267,23 @@ namespace MyBenchmarks
         /// </summary>
         public CustomDictionary<int, int> WithZombiesAtEndCurrent(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             var keysToRemove = new HashSet<int>();
 
             int r;
             for (int i = 0; i < size; i++)
             {
-                r = rand.Next();
+                r = rand.Next(1073741823);
                 while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next();
+                    r = rand.Next(1073741823);
                 if (i >= size - removeCount)
                 {
                     keysToRemove.Add(r);
@@ -234,16 +298,24 @@ namespace MyBenchmarks
 
         public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgainCurrent(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             for (int i = 0; i < size; i++)
             {
-                input.TryAdd(rand.Next(), rand.Next());
+                input.TryAdd(rand.Next(1073741823), rand.Next());
             }
             input.Clear();
 
             for (int i = 0; i < addAgainCount; i++)
             {
-                while (!input.TryAdd(rand.Next(), rand.Next())) ;
+                while (!input.TryAdd(rand.Next(1073741823), rand.Next())) ;
             }
 
             return input;
@@ -251,10 +323,18 @@ namespace MyBenchmarks
 
         public CustomDictionary<int, int> WithDictionaryFullCurrent(Random rand, int size, float initCapacityPercentage)
         {
-            var input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
             for (int i = 0; i < size; i++)
             {
-                input.TryAdd(rand.Next(), rand.Next());
+                input.TryAdd(rand.Next(1073741823), rand.Next());
             }
 
             return input;
