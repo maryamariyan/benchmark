@@ -16,8 +16,8 @@ namespace hwapp
     {
         static void Main(string[] args)
         {
-            //new Program().TestBothResizeApisOnDefaultInput();
-            var summary = BenchmarkRunner.Run<IntroIParam>();
+            new Program().TestBothResizeApisOnDefaultInput();
+            //var summary = BenchmarkRunner.Run<IntroIParam>();
         }
 
         /// <summary>
@@ -41,8 +41,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
-                _dictionary.Resize(_dictionary.EnsureCapacity(0)- 10000, false);
+                Console.WriteLine(inp.addOrResizeSize);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionary = DeserializeData(inp.dictstring);
@@ -54,8 +54,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
-                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 10000, false);
+                Console.WriteLine(inp.addOrResizeSize);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionarydiff = DeserializeDataDiff(inp.diffstring);
@@ -67,8 +67,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
-                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 10000, false);
+                Console.WriteLine(inp.addOrResizeSize);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionarydiff = DeserializeDataDiff(inp.diffstring);
@@ -80,8 +80,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-                Console.WriteLine(_dictionary.EnsureCapacity(0) - 40000);
-                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 40000, false);
+                Console.WriteLine(inp.addOrResizeSize);
+                _dictionary.Resize(inp.addOrResizeSize, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
             }
         }
@@ -214,8 +214,8 @@ namespace MyBenchmarks
                     // UC C
                     diff = generator.ZombiesAreScatteredChangeCapDiff(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
                     dict = generator.ZombiesAreScatteredChangeCap(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count), SerializeJobData(diff), SerializeJobData(dict), count, 2*HashHelpers.ExpandPrime(count));
-                    if (_generator.TrimWillResize(dict, 2*HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2*HashHelpers.ExpandPrime(count))) yield return inputElement;
+                    inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count), SerializeJobData(diff), SerializeJobData(dict), count, 2 * HashHelpers.ExpandPrime(count));
+                    if (_generator.TrimWillResize(dict, 2 * HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2 * HashHelpers.ExpandPrime(count))) yield return inputElement;
 
                     //UC B
                     //diff = generator.ZombiesAreScatteredDiff(rand, count, (int)(0.5 * count), 2 * HashHelpers.ExpandPrime(count));
@@ -233,6 +233,7 @@ namespace MyBenchmarks
                     //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
                     //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
+                    //UC A
                     //diff = generator.DictionaryFullDiff(rand, count, 2*HashHelpers.ExpandPrime(count));
                     //dict = generator.DictionaryFull(rand, count, 2*HashHelpers.ExpandPrime(count));
                     //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryFull), count, dict.EnsureCapacity(0), dict.Count, 2* HashHelpers.ExpandPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.ExpandPrime(dict.Count));
