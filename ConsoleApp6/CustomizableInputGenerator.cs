@@ -153,6 +153,54 @@ namespace MyBenchmarks
             return true;
         }
 
+        public CustomDictionary<int, int> AddThenRemoveAtRandom(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            input.EnsureCapacity(nextCapacity);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtRandom(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            input.EnsureCapacity(nextCapacity);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
         public CustomDictionary<int, int> AddThenRemoveAtRandom(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount)
         {
             var abc = PickNumbers(input);
@@ -257,6 +305,38 @@ namespace MyBenchmarks
             return input;
         }
 
+        public DifferentDictionary<int, int> ZombiesAreScatteredChangeCapDiff(Random rand, int size, int removeCount, int initCapacity, int nextCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount, nextCapacity);
+        }
+
+        public DifferentDictionary<int, int> ZombiesAreScatteredDiff(Random rand, int size, int removeCount, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
+
         public DifferentDictionary<int, int> ZombiesAreScatteredDiff(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
@@ -324,6 +404,21 @@ namespace MyBenchmarks
             return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
+        public DifferentDictionary<int, int> DictionaryAllEntriesRemovedAddAgainDiff(Random rand, int size, int addAgainCount, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
+        }
+
         public DifferentDictionary<int, int> DictionaryFullDiff(Random rand, int size, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
@@ -338,7 +433,53 @@ namespace MyBenchmarks
 
             return AddThenRemoveAtEnd(input, rand, size, 0);
         }
-        
+
+        public DifferentDictionary<int, int> DictionaryFullDiff(Random rand, int size, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            if (initCapacity == 0.0)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+
+        public CustomDictionary<int, int> ZombiesAreScatteredChangeCap(Random rand, int size, int removeCount, int initCapacity, int nextCapacity)
+        {
+            CustomDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount, nextCapacity);
+        }
+
+        public CustomDictionary<int, int> ZombiesAreScattered(Random rand, int size, int removeCount, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
 
         public CustomDictionary<int, int> ZombiesAreScattered(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
         {
@@ -407,6 +548,21 @@ namespace MyBenchmarks
             return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
+        public CustomDictionary<int, int> DictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
+        }
+
         public CustomDictionary<int, int> DictionaryFull(Random rand, int size, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
@@ -419,6 +575,21 @@ namespace MyBenchmarks
                 input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
             
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+
+        public CustomDictionary<int, int> DictionaryFull(Random rand, int size, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            if (initCapacity == 0)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
             return AddThenRemoveAtEnd(input, rand, size, 0);
         }
     }
