@@ -840,34 +840,7 @@ namespace hwapp
                 return;
             }
 
-            int[] buckets = new int[newSize];
-            for (int i = 0; i < buckets.Length; i++)
-            {
-                buckets[i] = -1;
-            }
-            int count = _count;
-            Entry[] entries = new Entry[newSize];
-            int k = 0;
-            for (int i = 0; i < count; i++)
-            {
-                if (_entries[i].hashCode >= 0)
-                {
-                    ref Entry entry = ref _entries[i];
-                    int bucket = entry.hashCode % newSize;
-                    entry.next = buckets[bucket];
-                    buckets[bucket] = i;
-                    entries[k] = entry;
-                    k++;
-                }
-            }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _version++;
-            _count = k;
-
-            _buckets = buckets;
-            _entries = entries;
+            Resize(newSize, false);
         }
 
         bool ICollection.IsSynchronized
@@ -2354,71 +2327,7 @@ namespace hwapp
             Resize(newSize, forceNewHashCodes: false);
             return newSize;
         }
-
-        /// <summary>
-        /// Sets the capacity of this dictionary to hold up at least all existing entries
-        /// 
-        /// This method can be used to minimize the memory overhead 
-        /// once it is known that no new elements will be added. 
-        /// 
-        /// To completely clear a dictionary and release all memory 
-        /// referenced by the dictionary, execute the following statements:
-        /// 
-        /// dictionary.Clear();
-        /// dictionary.TrimExcess();
-        /// </summary>
-        public void TrimExcess()
-        {
-            TrimExcess(HashHelpers.GetPrime(Count));
-        }
-
-        /// <summary>
-        /// Sets the capacity of this dictionary to hold up at least 'capacity' entries out any further expansion of its backing storage
-        /// </summary>
-        public void TrimExcess(int capacity)
-        {
-            if (capacity < Count)
-            {
-                throw new Exception();
-                //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
-            }
-
-            int newSize = HashHelpers.GetPrime(capacity);
-            if (_entries == null || newSize > _entries.Length)
-            {
-                return;
-            }
-
-            int[] buckets = new int[newSize];
-            for (int i = 0; i < buckets.Length; i++)
-            {
-                buckets[i] = -1;
-            }
-            int count = _count;
-            Entry[] entries = new Entry[newSize];
-            int k = 0;
-            for (int i = 0; i < count; i++)
-            {
-                if (_entries[i].hashCode >= 0)
-                {
-                    ref Entry entry = ref _entries[i];
-                    int bucket = entry.hashCode % newSize;
-                    entry.next = buckets[bucket];
-                    buckets[bucket] = i;
-                    entries[k] = entry;
-                    k++;
-                }
-            }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _version++;
-            _count = k;
-
-            _buckets = buckets;
-            _entries = entries;
-        }
-
+        
         bool ICollection.IsSynchronized
         {
             get { return false; }

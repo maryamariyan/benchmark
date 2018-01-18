@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>IntroIParam</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.11, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.192)
+Processor=Intel Core i7-6650U CPU 2.20GHz (Skylake), ProcessorCount=4
+Frequency=2156248 Hz, Resolution=463.7685 ns, Timer=TSC
+.NET Core SDK=2.1.4
+  [Host]     : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>                                                                      Field</th><th> Mean</th><th> Error</th><th>StdDev</th><th>Median</th>
+</tr>
+</thead><tbody><tr><td>ResizeNew</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:10)</td><td>102.5 us</td><td>2.035 us</td><td>5.741 us</td><td>102.0 us</td>
+</tr><tr><td>ResizeOld</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:10)</td><td>125.7 us</td><td>3.324 us</td><td>9.644 us</td><td>125.1 us</td>
+</tr><tr><td>ResizeNew</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:50)</td><td>464.2 us</td><td>22.443 us</td><td>64.753 us</td><td>444.5 us</td>
+</tr><tr><td>ResizeOld</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:50)</td><td>516.3 us</td><td>24.766 us</td><td>73.024 us</td><td>512.4 us</td>
+</tr><tr><td>ResizeNew</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:90)</td><td>795.2 us</td><td>32.909 us</td><td>93.892 us</td><td>779.7 us</td>
+</tr><tr><td>ResizeOld</td><td>  (ZombiesAreScattered startCapacity:0 originalSize:100, methodArgument:90)</td><td>810.5 us</td><td>27.386 us</td><td>79.885 us</td><td>805.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:100)</td><td>949.2 us</td><td>42.687 us</td><td>122.476 us</td><td>929.4 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:100)</td><td>931.2 us</td><td>48.893 us</td><td>142.623 us</td><td>899.9 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:500)</td><td>4,429.2 us</td><td>218.320 us</td><td>626.401 us</td><td>4,281.4 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:500)</td><td>4,231.0 us</td><td>131.879 us</td><td>378.385 us</td><td>4,154.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:900)</td><td>8,519.5 us</td><td>496.266 us</td><td>1,455.463 us</td><td>8,134.2 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:1000, methodArgument:900)</td><td>6,750.6 us</td><td>229.296 us</td><td>612.039 us</td><td>6,564.6 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:1000)</td><td>7,610.8 us</td><td>188.101 us</td><td>530.541 us</td><td>7,517.1 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:1000)</td><td>7,907.7 us</td><td>267.788 us</td><td>772.630 us</td><td>7,707.8 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:5000)</td><td>37,912.4 us</td><td>949.287 us</td><td>2,738.911 us</td><td>37,215.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:5000)</td><td>40,598.1 us</td><td>1,348.136 us</td><td>3,932.577 us</td><td>39,648.2 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:9000)</td><td>74,290.9 us</td><td>1,480.218 us</td><td>4,174.982 us</td><td>73,346.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:0 originalSize:10000, methodArgument:9000)</td><td>73,918.9 us</td><td>1,581.056 us</td><td>4,636.965 us</td><td>73,397.4 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:10)</td><td>114.3 us</td><td>3.469 us</td><td>10.118 us</td><td>111.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:10)</td><td>116.1 us</td><td>3.903 us</td><td>11.198 us</td><td>113.4 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:50)</td><td>410.0 us</td><td>8.935 us</td><td>25.780 us</td><td>407.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:50)</td><td>440.2 us</td><td>19.153 us</td><td>55.260 us</td><td>419.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:90)</td><td>767.7 us</td><td>40.195 us</td><td>117.886 us</td><td>718.0 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:100 originalSize:100, methodArgument:90)</td><td>719.2 us</td><td>20.498 us</td><td>58.149 us</td><td>700.3 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:100)</td><td>808.3 us</td><td>21.899 us</td><td>62.832 us</td><td>791.6 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:100)</td><td>756.1 us</td><td>14.869 us</td><td>25.249 us</td><td>753.4 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:500)</td><td>3,653.1 us</td><td>72.427 us</td><td>144.644 us</td><td>3,674.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:500)</td><td>3,643.5 us</td><td>72.572 us</td><td>168.198 us</td><td>3,617.6 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:900)</td><td>7,120.8 us</td><td>236.600 us</td><td>682.646 us</td><td>6,980.0 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:1000 originalSize:1000, methodArgument:900)</td><td>6,729.0 us</td><td>188.777 us</td><td>544.665 us</td><td>6,587.8 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:1000)</td><td>7,844.1 us</td><td>231.273 us</td><td>681.913 us</td><td>7,628.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:1000)</td><td>7,478.6 us</td><td>162.966 us</td><td>467.580 us</td><td>7,359.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:5000)</td><td>39,311.7 us</td><td>1,004.019 us</td><td>2,896.826 us</td><td>38,944.2 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:5000)</td><td>37,756.3 us</td><td>899.858 us</td><td>2,552.748 us</td><td>37,026.5 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:9000)</td><td>69,920.4 us</td><td>1,366.099 us</td><td>1,959.219 us</td><td>69,850.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:10000 originalSize:10000, methodArgument:9000)</td><td>69,242.1 us</td><td>1,360.870 us</td><td>2,036.886 us</td><td>69,822.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:10)</td><td>112.9 us</td><td>3.416 us</td><td>9.965 us</td><td>109.4 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:10)</td><td>126.4 us</td><td>7.003 us</td><td>20.538 us</td><td>117.2 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:50)</td><td>419.3 us</td><td>13.773 us</td><td>39.517 us</td><td>406.2 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:50)</td><td>407.7 us</td><td>11.734 us</td><td>34.413 us</td><td>397.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:90)</td><td>757.3 us</td><td>35.312 us</td><td>103.564 us</td><td>728.6 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:200 originalSize:100, methodArgument:90)</td><td>727.4 us</td><td>24.838 us</td><td>71.664 us</td><td>705.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:100)</td><td>811.0 us</td><td>28.756 us</td><td>82.043 us</td><td>787.2 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:100)</td><td>787.3 us</td><td>24.006 us</td><td>69.263 us</td><td>764.5 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:500)</td><td>3,661.6 us</td><td>72.689 us</td><td>198.985 us</td><td>3,609.6 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:500)</td><td>3,766.0 us</td><td>131.213 us</td><td>380.672 us</td><td>3,592.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:900)</td><td>6,762.7 us</td><td>215.860 us</td><td>629.672 us</td><td>6,534.0 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:2000 originalSize:1000, methodArgument:900)</td><td>6,650.4 us</td><td>183.883 us</td><td>518.645 us</td><td>6,448.2 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:1000)</td><td>7,600.9 us</td><td>255.771 us</td><td>742.039 us</td><td>7,337.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:1000)</td><td>7,520.4 us</td><td>227.313 us</td><td>666.670 us</td><td>7,314.6 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:5000)</td><td>38,073.2 us</td><td>1,075.954 us</td><td>3,138.608 us</td><td>37,638.5 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:5000)</td><td>40,623.8 us</td><td>1,686.265 us</td><td>4,700.634 us</td><td>39,400.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:9000)</td><td>71,400.2 us</td><td>1,422.459 us</td><td>3,122.332 us</td><td>71,120.5 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAreScattered startCapacity:20000 originalSize:10000, methodArgument:9000)</td><td>72,067.0 us</td><td>1,432.864 us</td><td>3,292.244 us</td><td>71,207.9 us</td>
+</tr><tr><td>ResizeNew</td><td>         (ZombiesAtEnd startCapacity:0 originalSize:100, methodArgument:80)</td><td>637.9 us</td><td>14.998 us</td><td>43.032 us</td><td>626.5 us</td>
+</tr><tr><td>ResizeOld</td><td>         (ZombiesAtEnd startCapacity:0 originalSize:100, methodArgument:80)</td><td>628.9 us</td><td>12.968 us</td><td>32.773 us</td><td>625.1 us</td>
+</tr><tr><td>ResizeNew</td><td>       (ZombiesAtEnd startCapacity:0 originalSize:1000, methodArgument:800)</td><td>6,053.8 us</td><td>118.294 us</td><td>296.776 us</td><td>6,039.5 us</td>
+</tr><tr><td>ResizeOld</td><td>       (ZombiesAtEnd startCapacity:0 originalSize:1000, methodArgument:800)</td><td>6,045.7 us</td><td>120.036 us</td><td>253.197 us</td><td>6,027.5 us</td>
+</tr><tr><td>ResizeNew</td><td>     (ZombiesAtEnd startCapacity:0 originalSize:10000, methodArgument:8000)</td><td>60,486.4 us</td><td>1,188.385 us</td><td>1,985.525 us</td><td>60,227.9 us</td>
+</tr><tr><td>ResizeOld</td><td>     (ZombiesAtEnd startCapacity:0 originalSize:10000, methodArgument:8000)</td><td>60,117.8 us</td><td>1,194.021 us</td><td>1,673.851 us</td><td>60,108.3 us</td>
+</tr><tr><td>ResizeNew</td><td>       (ZombiesAtEnd startCapacity:100 originalSize:100, methodArgument:80)</td><td>645.1 us</td><td>15.918 us</td><td>46.180 us</td><td>636.5 us</td>
+</tr><tr><td>ResizeOld</td><td>       (ZombiesAtEnd startCapacity:100 originalSize:100, methodArgument:80)</td><td>627.1 us</td><td>13.762 us</td><td>38.815 us</td><td>619.1 us</td>
+</tr><tr><td>ResizeNew</td><td>    (ZombiesAtEnd startCapacity:1000 originalSize:1000, methodArgument:800)</td><td>6,114.9 us</td><td>160.216 us</td><td>443.956 us</td><td>5,999.5 us</td>
+</tr><tr><td>ResizeOld</td><td>    (ZombiesAtEnd startCapacity:1000 originalSize:1000, methodArgument:800)</td><td>6,029.7 us</td><td>120.307 us</td><td>329.339 us</td><td>5,949.9 us</td>
+</tr><tr><td>ResizeNew</td><td> (ZombiesAtEnd startCapacity:10000 originalSize:10000, methodArgument:8000)</td><td>60,079.7 us</td><td>1,246.648 us</td><td>2,986.888 us</td><td>59,588.7 us</td>
+</tr><tr><td>ResizeOld</td><td> (ZombiesAtEnd startCapacity:10000 originalSize:10000, methodArgument:8000)</td><td>62,447.3 us</td><td>1,877.450 us</td><td>5,264.571 us</td><td>61,223.1 us</td>
+</tr><tr><td>ResizeNew</td><td>       (ZombiesAtEnd startCapacity:200 originalSize:100, methodArgument:80)</td><td>641.4 us</td><td>13.956 us</td><td>38.672 us</td><td>632.0 us</td>
+</tr><tr><td>ResizeOld</td><td>       (ZombiesAtEnd startCapacity:200 originalSize:100, methodArgument:80)</td><td>653.5 us</td><td>18.961 us</td><td>54.404 us</td><td>633.8 us</td>
+</tr><tr><td>ResizeNew</td><td>    (ZombiesAtEnd startCapacity:2000 originalSize:1000, methodArgument:800)</td><td>10,053.7 us</td><td>472.149 us</td><td>1,392.142 us</td><td>10,103.6 us</td>
+</tr><tr><td>ResizeOld</td><td>    (ZombiesAtEnd startCapacity:2000 originalSize:1000, methodArgument:800)</td><td>10,570.4 us</td><td>604.229 us</td><td>1,781.584 us</td><td>10,269.5 us</td>
+</tr><tr><td>ResizeNew</td><td> (ZombiesAtEnd startCapacity:20000 originalSize:10000, methodArgument:8000)</td><td>61,225.7 us</td><td>1,816.456 us</td><td>1,516.822 us</td><td>60,974.9 us</td>
+</tr><tr><td>ResizeOld</td><td> (ZombiesAtEnd startCapacity:20000 originalSize:10000, methodArgument:8000)</td><td>60,770.7 us</td><td>1,212.392 us</td><td>3,063.870 us</td><td>60,143.9 us</td>
+</tr><tr><td>ResizeNew</td><td>       (ZombiesAtFront startCapacity:0 originalSize:100, methodArgument:80)</td><td>649.4 us</td><td>18.276 us</td><td>52.141 us</td><td>632.9 us</td>
+</tr><tr><td>ResizeOld</td><td>       (ZombiesAtFront startCapacity:0 originalSize:100, methodArgument:80)</td><td>644.0 us</td><td>17.494 us</td><td>50.475 us</td><td>629.5 us</td>
+</tr><tr><td>ResizeNew</td><td>     (ZombiesAtFront startCapacity:0 originalSize:1000, methodArgument:800)</td><td>5,982.7 us</td><td>151.418 us</td><td>424.593 us</td><td>5,844.1 us</td>
+</tr><tr><td>ResizeOld</td><td>     (ZombiesAtFront startCapacity:0 originalSize:1000, methodArgument:800)</td><td>6,154.8 us</td><td>180.641 us</td><td>518.292 us</td><td>6,013.9 us</td>
+</tr><tr><td>ResizeNew</td><td>   (ZombiesAtFront startCapacity:0 originalSize:10000, methodArgument:8000)</td><td>60,095.1 us</td><td>1,197.316 us</td><td>2,128.229 us</td><td>59,808.4 us</td>
+</tr><tr><td>ResizeOld</td><td>   (ZombiesAtFront startCapacity:0 originalSize:10000, methodArgument:8000)</td><td>60,414.9 us</td><td>1,397.292 us</td><td>2,048.133 us</td><td>60,403.5 us</td>
+</tr><tr><td>ResizeNew</td><td>     (ZombiesAtFront startCapacity:100 originalSize:100, methodArgument:80)</td><td>648.7 us</td><td>15.944 us</td><td>45.490 us</td><td>633.8 us</td>
+</tr><tr><td>ResizeOld</td><td>     (ZombiesAtFront startCapacity:100 originalSize:100, methodArgument:80)</td><td>621.5 us</td><td>15.594 us</td><td>41.353 us</td><td>613.6 us</td>
+</tr><tr><td>ResizeNew</td><td>  (ZombiesAtFront startCapacity:1000 originalSize:1000, methodArgument:800)</td><td>6,348.9 us</td><td>200.994 us</td><td>576.689 us</td><td>6,186.5 us</td>
+</tr><tr><td>ResizeOld</td><td>  (ZombiesAtFront startCapacity:1000 originalSize:1000, methodArgument:800)</td><td>6,186.6 us</td><td>135.416 us</td><td>386.351 us</td><td>6,119.8 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAtFront startCapacity:10000 originalSize:10000, methodArgument:8000)</td><td>61,666.1 us</td><td>1,222.307 us</td><td>1,938.708 us</td><td>62,204.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAtFront startCapacity:10000 originalSize:10000, methodArgument:8000)</td><td>60,456.6 us</td><td>1,173.109 us</td><td>1,719.528 us</td><td>60,236.7 us</td>
+</tr><tr><td>ResizeNew</td><td>     (ZombiesAtFront startCapacity:200 originalSize:100, methodArgument:80)</td><td>640.1 us</td><td>15.393 us</td><td>43.667 us</td><td>627.5 us</td>
+</tr><tr><td>ResizeOld</td><td>     (ZombiesAtFront startCapacity:200 originalSize:100, methodArgument:80)</td><td>658.2 us</td><td>14.913 us</td><td>42.548 us</td><td>648.8 us</td>
+</tr><tr><td>ResizeNew</td><td>  (ZombiesAtFront startCapacity:2000 originalSize:1000, methodArgument:800)</td><td>6,134.1 us</td><td>146.622 us</td><td>423.039 us</td><td>6,034.5 us</td>
+</tr><tr><td>ResizeOld</td><td>  (ZombiesAtFront startCapacity:2000 originalSize:1000, methodArgument:800)</td><td>5,807.3 us</td><td>116.991 us</td><td>333.781 us</td><td>5,779.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(ZombiesAtFront startCapacity:20000 originalSize:10000, methodArgument:8000)</td><td>60,860.0 us</td><td>1,248.826 us</td><td>2,187.218 us</td><td>60,718.4 us</td>
+</tr><tr><td>ResizeOld</td><td>(ZombiesAtFront startCapacity:20000 originalSize:10000, methodArgument:8000)</td><td>59,657.3 us</td><td>1,174.992 us</td><td>1,722.289 us</td><td>60,031.3 us</td>
+</tr></tbody></table>
+</body>
+</html>

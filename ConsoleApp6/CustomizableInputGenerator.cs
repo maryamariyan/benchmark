@@ -123,6 +123,36 @@ namespace MyBenchmarks
             return input;
         }
 
+        public bool TrimWillResize(CustomDictionary<int, int> input, int capacity)
+        {
+            if (capacity < input.Count)
+            {
+                return false;
+            }
+
+            int newSize = HashHelpers.GetPrime(capacity);
+            if (newSize > input.EnsureCapacity(0))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool TrimWillResize(DifferentDictionary<int, int> input, int capacity)
+        {
+            if (capacity < input.Count)
+            {
+                return false;
+            }
+
+            int newSize = HashHelpers.GetPrime(capacity);
+            if (newSize > input.EnsureCapacity(0))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public CustomDictionary<int, int> AddThenRemoveAtRandom(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount)
         {
             var abc = PickNumbers(input);
@@ -291,7 +321,7 @@ namespace MyBenchmarks
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
 
-            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, 0, addAgainCount);
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
         public DifferentDictionary<int, int> DictionaryFullDiff(Random rand, int size, float initCapacityPercentage)
@@ -374,7 +404,7 @@ namespace MyBenchmarks
                 input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
             
-            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, 0, addAgainCount);
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
         public CustomDictionary<int, int> DictionaryFull(Random rand, int size, float initCapacityPercentage)
