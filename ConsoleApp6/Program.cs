@@ -133,6 +133,11 @@ namespace MyBenchmarks
 {
     public class IntroIParam
     {
+        public IntroIParam()
+        {
+            _generator = new CustomizableInputGenerator(10000);
+        }
+
         public struct ResizeInputElements
         {
             public readonly string dictstring;
@@ -180,28 +185,28 @@ namespace MyBenchmarks
         public IEnumerable<ResizeInputElements> InParameters()
         {
             var rand = new Random(42);
-            var generator = new CustomizableInputGenerator();
-            int[] counts = { /*10000, */100,10000,1000 };
-            float[] initCapacityPercentages = {0.0f, 2.0f};
+            var generator = new CustomizableInputGenerator(10000);
+            int[] counts = { /*10000, 100,10000,*/1000 };
+            float[] initCapacityPercentages = {0.0f, 1.0f};
 
             foreach (var count in counts)
             {
                 foreach (var perc in initCapacityPercentages)
                 {
-                    var diff = generator.WithZombiesAtEndDiff(rand, count, (int)(0.2 * count), perc);
-                    var dict = generator.WithZombiesAtEnd(rand, count, (int)(0.2 * count), perc);
-                    var inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtEnd), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
-
-                    diff = generator.WithZombiesAtFrontDiff(rand, count, (int)(0.2 * count), perc);
-                    dict = generator.WithZombiesAtFront(rand, count, (int)(0.2 * count), perc);
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtFront), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
-
-                    //diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.5f, perc);
-                    //dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.5f, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //var diff = generator.WithZombiesAtEndDiff(rand, count, (int)(0.2 * count), perc);
+                    //var dict = generator.WithZombiesAtEnd(rand, count, (int)(0.2 * count), perc);
+                    //var inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtEnd), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
                     //yield return inputElement;
+
+                    //diff = generator.WithZombiesAtFrontDiff(rand, count, (int)(0.2 * count), perc);
+                    //dict = generator.WithZombiesAtFront(rand, count, (int)(0.2 * count), perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtFront), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //yield return inputElement;
+
+                    var diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.5f, perc);
+                    var dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.5f, perc);
+                    var inputElement = new ResizeInputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    yield return inputElement;
 
                     //var diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.1f, perc);
                     //var dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.1f, perc);
@@ -253,6 +258,8 @@ namespace MyBenchmarks
 
         private string GetName(string name, float percentage)
         { return $"{name} {percentage}"; }
+
+        private CustomizableInputGenerator _generator;
 
         #region serializing
 
@@ -315,7 +322,23 @@ namespace MyBenchmarks
             return FromByteArray(raw, assemblyStyle);
         }
         #endregion
-        
+
+        public void AddOnEmpty()
+        {
+            Random rand = new Random(42);
+            var dic = new DifferentDictionary<int, int>();
+            _generator.PickNumbers(dic);
+            _generator.AddThenRemoveAtRandom(dic, rand, Field.origSize, Field.addOrResizeSize);
+        }
+
+        public void AddOldOnEmpty()
+        {
+            Random rand = new Random(42);
+            var dic = new CustomDictionary<int, int>();
+            _generator.PickNumbers(dic);
+            _generator.AddThenRemoveAtRandom(dic, rand, Field.origSize, Field.addOrResizeSize);
+        }
+
         [Benchmark]
         public void ResizeNew()
         {
@@ -333,10 +356,10 @@ namespace MyBenchmarks
         {
             Random rand = new Random(42);
             var d = DeserializeDataDiff(Field.diffstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.addOrResizeSize, 0);
         }
 
         //[Benchmark]
@@ -344,48 +367,32 @@ namespace MyBenchmarks
         {
             Random rand = new Random(42);
             var d = DeserializeData(Field.dictstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.addOrResizeSize, 0);
         }
 
        // [Benchmark]
         public void AddAndRemoveNew()
         {
-            var set = new HashSet<int>();
-            int x;
             Random rand = new Random(42);
             var d = DeserializeDataDiff(Field.diffstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                x = rand.Next(1073741824, int.MaxValue);
-                if(d.TryAdd(x, rand.Next()))
-                    set.Add(x);
-            }
-            foreach (var item in set)
-            {
-                d.Remove(item);
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.origSize, Field.addOrResizeSize);
         }
 
         //[Benchmark]
         public void AddAndRemoveOld()
         {
-            var set = new HashSet<int>();
-            int x;
             Random rand = new Random(42);
             var d = DeserializeData(Field.dictstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                x = rand.Next(1073741824, int.MaxValue);
-                if (d.TryAdd(x, rand.Next()))
-                    set.Add(x);
-            }
-            foreach (var item in set)
-            {
-                d.Remove(item);
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.origSize, Field.addOrResizeSize);
         }
     }
 
