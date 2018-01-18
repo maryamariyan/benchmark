@@ -28,9 +28,10 @@ namespace MyBenchmarks
             }
         }
 
-        public DifferentDictionary<int, int> WithPercentageAsZombiesAtRandomDiff(Random rand, int size, float percentage, float initCapacityPercentage)
+        public DifferentDictionary<int, int> WithPercentageAsZombiesAtRandomDiff(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
+            int newCount = (int)(size * (1.0f - percentageToRemove));
             if (initCapacityPercentage == 0.0f)
             {
                 input = new DifferentDictionary<int, int>();
@@ -40,9 +41,10 @@ namespace MyBenchmarks
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
             var keysToRemove = new HashSet<int>();
+            var more = new HashSet<int>();
             int key;
             int maxRandValue = 1073741823;
-            int goodRange = (int)(maxRandValue * percentage);
+            int goodRange = (int)(maxRandValue * percentageToRemove);
             for (int i = 0; i < size; i++)
             {
                 key = rand.Next(maxRandValue);
@@ -52,10 +54,41 @@ namespace MyBenchmarks
                 {
                     keysToRemove.Add(key);
                 }
+                else
+                {
+                    more.Add(key);
+                }
             }
-            foreach (var item in keysToRemove)
+
+            if (keysToRemove.Count <= (size - newCount))
             {
-                input.Remove(item);
+                foreach (var item in keysToRemove)
+                {
+                    input.Remove(item);
+                }
+                int i = 0;
+                foreach (var item in more)
+                {
+                    if (input.Count == newCount)
+                    {
+                        return input;
+                    }
+                    input.Remove(item);
+                    i++;
+                }
+            }
+            else
+            {
+                int i = 0;
+                foreach (var item in keysToRemove)
+                {
+                    if (input.Count == newCount)
+                    {
+                        return input;
+                    }
+                    input.Remove(item);
+                    i++;
+                }
             }
             return input;
         }
@@ -173,7 +206,7 @@ namespace MyBenchmarks
             return input;
         }
         
-        public void RemoveOneItemCurrent(CustomDictionary<int, int> input)
+        public void RemoveOneItem(CustomDictionary<int, int> input)
         {
             int midItem = input.Count / 2;
             int i = 0;
@@ -195,7 +228,7 @@ namespace MyBenchmarks
             }
         }
 
-        public CustomDictionary<int, int> WithPercentageAsZombiesAtRandomCurrent(Random rand, int size, float percentage, float initCapacityPercentage)
+        public CustomDictionary<int, int> WithPercentageAsZombiesAtRandom(Random rand, int size, float percentage, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -231,7 +264,7 @@ namespace MyBenchmarks
         /// <summary>
         /// With zombies at front
         /// </summary>
-        public CustomDictionary<int, int> WithZombiesAtFrontCurrent(Random rand, int size, int removeCount, float initCapacityPercentage)
+        public CustomDictionary<int, int> WithZombiesAtFront(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -265,7 +298,7 @@ namespace MyBenchmarks
         /// <summary>
         /// With zombies at front
         /// </summary>
-        public CustomDictionary<int, int> WithZombiesAtEndCurrent(Random rand, int size, int removeCount, float initCapacityPercentage)
+        public CustomDictionary<int, int> WithZombiesAtEnd(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -296,7 +329,7 @@ namespace MyBenchmarks
             return input;
         }
 
-        public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgainCurrent(Random rand, int size, int addAgainCount, float initCapacityPercentage)
+        public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -321,7 +354,7 @@ namespace MyBenchmarks
             return input;
         }
 
-        public CustomDictionary<int, int> WithDictionaryFullCurrent(Random rand, int size, float initCapacityPercentage)
+        public CustomDictionary<int, int> WithDictionaryFull(Random rand, int size, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
