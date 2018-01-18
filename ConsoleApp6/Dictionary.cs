@@ -25,12 +25,12 @@ namespace hwapp
         None = 0,
 
         /// <summary>
-        /// Specifies that an existing entry with the same key should be overwritten if encountered.
+        /// Specifies that an existing entry  the same key should be overwritten if encountered.
         /// </summary>
         OverwriteExisting = 1,
 
         /// <summary>
-        /// Specifies that if an existing entry with the same key is encountered, an exception should be thrown.
+        /// Specifies that if an existing entry  the same key is encountered, an exception should be thrown.
         /// </summary>
         ThrowOnExisting = 2
     }
@@ -97,7 +97,7 @@ namespace hwapp
             // It is likely that the passed-in dictionary is DifferentDictionary<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
             // We only do this when dictionary is DifferentDictionary<TKey,TValue> and not a subclass, to maintain
-            // back-compat with subclasses that may have overridden the enumerator behavior.
+            // back-compat  subclasses that may have overridden the enumerator behavior.
             if (dictionary.GetType() == typeof(DifferentDictionary<TKey, TValue>))
             {
                 DifferentDictionary<TKey, TValue> d = (DifferentDictionary<TKey, TValue>)dictionary;
@@ -138,7 +138,7 @@ namespace hwapp
 
         protected DifferentDictionary(SerializationInfo info, StreamingContext context)
         {
-            // We can't do anything with the keys and values until the entire graph has been deserialized
+            // We can't do anything  the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
             // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
             HashHelpers.SerializationInfoTable.Add(this, info);
@@ -426,7 +426,7 @@ namespace hwapp
                     if (behavior == InsertionBehavior.ThrowOnExisting)
                     {
                         throw new ArgumentException();
-                        //ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
+                        //ThrowHelper.ThrowAddingDuplicateKeyArgumentException(key);
                     }
 
                     return false;
@@ -569,7 +569,7 @@ namespace hwapp
             _entries = entries;
         }
 
-        // The overload Remove(TKey key, out TValue value) is a copy of this method with one additional
+        // The overload Remove(TKey key, out TValue value) is a copy of this method  one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key)
@@ -624,7 +624,7 @@ namespace hwapp
             return false;
         }
 
-        // This overload is a copy of the overload Remove(TKey key) with one additional
+        // This overload is a copy of the overload Remove(TKey key)  one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key, out TValue value)
@@ -791,7 +791,7 @@ namespace hwapp
         }
 
         /// <summary>
-        /// Ensures that the dictionary can hold up to 'capacity' entries without any further expansion of its backing storage
+        /// Ensures that the dictionary can hold up to 'capacity' entries out any further expansion of its backing storage
         /// </summary>
         public int EnsureCapacity(int capacity)
         {
@@ -824,7 +824,7 @@ namespace hwapp
         }
 
         /// <summary>
-        /// Sets the capacity of this dictionary to hold up at least 'capacity' entries without any further expansion of its backing storage
+        /// Sets the capacity of this dictionary to hold up at least 'capacity' entries out any further expansion of its backing storage
         /// </summary>
         public void TrimExcess(int capacity)
         {
@@ -840,34 +840,7 @@ namespace hwapp
                 return;
             }
 
-            int[] buckets = new int[newSize];
-            for (int i = 0; i < buckets.Length; i++)
-            {
-                buckets[i] = -1;
-            }
-            int count = _count;
-            Entry[] entries = new Entry[newSize];
-            int k = 0;
-            for (int i = 0; i < count; i++)
-            {
-                if (_entries[i].hashCode >= 0)
-                {
-                    ref Entry entry = ref _entries[i];
-                    int bucket = entry.hashCode % newSize;
-                    entry.next = buckets[bucket];
-                    buckets[bucket] = i;
-                    entries[k] = entry;
-                    k++;
-                }
-            }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _version++;
-            _count = k;
-
-            _buckets = buckets;
-            _entries = entries;
+            Resize(newSize, false);
         }
 
         bool ICollection.IsSynchronized
@@ -1654,7 +1627,7 @@ namespace hwapp
             // It is likely that the passed-in dictionary is CustomDictionary<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
             // We only do this when dictionary is CustomDictionary<TKey,TValue> and not a subclass, to maintain
-            // back-compat with subclasses that may have overridden the enumerator behavior.
+            // back-compat  subclasses that may have overridden the enumerator behavior.
             if (dictionary.GetType() == typeof(CustomDictionary<TKey, TValue>))
             {
                 CustomDictionary<TKey, TValue> d = (CustomDictionary<TKey, TValue>)dictionary;
@@ -1695,7 +1668,7 @@ namespace hwapp
 
         protected CustomDictionary(SerializationInfo info, StreamingContext context)
         {
-            // We can't do anything with the keys and values until the entire graph has been deserialized
+            // We can't do anything  the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
             // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
             HashHelpers.SerializationInfoTable.Add(this, info);
@@ -1983,7 +1956,7 @@ namespace hwapp
                     if (behavior == InsertionBehavior.ThrowOnExisting)
                     {
                         throw new ArgumentException();
-                        //ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
+                        //ThrowHelper.ThrowAddingDuplicateKeyArgumentException(key);
                     }
 
                     return false;
@@ -2118,7 +2091,7 @@ namespace hwapp
             _entries = entries;
         }
 
-        // The overload Remove(TKey key, out TValue value) is a copy of this method with one additional
+        // The overload Remove(TKey key, out TValue value) is a copy of this method  one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key)
@@ -2173,7 +2146,7 @@ namespace hwapp
             return false;
         }
 
-        // This overload is a copy of the overload Remove(TKey key) with one additional
+        // This overload is a copy of the overload Remove(TKey key)  one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key, out TValue value)
@@ -2340,7 +2313,7 @@ namespace hwapp
         }
 
         /// <summary>
-        /// Ensures that the dictionary can hold up to 'capacity' entries without any further expansion of its backing storage
+        /// Ensures that the dictionary can hold up to 'capacity' entries out any further expansion of its backing storage
         /// </summary>
         public int EnsureCapacity(int capacity)
         {
@@ -2354,71 +2327,7 @@ namespace hwapp
             Resize(newSize, forceNewHashCodes: false);
             return newSize;
         }
-
-        /// <summary>
-        /// Sets the capacity of this dictionary to hold up at least all existing entries
-        /// 
-        /// This method can be used to minimize the memory overhead 
-        /// once it is known that no new elements will be added. 
-        /// 
-        /// To completely clear a dictionary and release all memory 
-        /// referenced by the dictionary, execute the following statements:
-        /// 
-        /// dictionary.Clear();
-        /// dictionary.TrimExcess();
-        /// </summary>
-        public void TrimExcess()
-        {
-            TrimExcess(HashHelpers.GetPrime(Count));
-        }
-
-        /// <summary>
-        /// Sets the capacity of this dictionary to hold up at least 'capacity' entries without any further expansion of its backing storage
-        /// </summary>
-        public void TrimExcess(int capacity)
-        {
-            if (capacity < Count)
-            {
-                throw new Exception();
-                //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
-            }
-
-            int newSize = HashHelpers.GetPrime(capacity);
-            if (_entries == null || newSize > _entries.Length)
-            {
-                return;
-            }
-
-            int[] buckets = new int[newSize];
-            for (int i = 0; i < buckets.Length; i++)
-            {
-                buckets[i] = -1;
-            }
-            int count = _count;
-            Entry[] entries = new Entry[newSize];
-            int k = 0;
-            for (int i = 0; i < count; i++)
-            {
-                if (_entries[i].hashCode >= 0)
-                {
-                    ref Entry entry = ref _entries[i];
-                    int bucket = entry.hashCode % newSize;
-                    entry.next = buckets[bucket];
-                    buckets[bucket] = i;
-                    entries[k] = entry;
-                    k++;
-                }
-            }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _version++;
-            _count = k;
-
-            _buckets = buckets;
-            _entries = entries;
-        }
-
+        
         bool ICollection.IsSynchronized
         {
             get { return false; }

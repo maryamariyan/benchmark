@@ -41,8 +41,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-
-                _dictionary.Resize(inp.addOrResizeSize, false);
+                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
+                _dictionary.Resize(_dictionary.EnsureCapacity(0)- 10000, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionary = DeserializeData(inp.dictstring);
@@ -54,8 +54,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-
-                _dictionary.Resize(inp.addOrResizeSize, false);
+                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
+                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 10000, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionarydiff = DeserializeDataDiff(inp.diffstring);
@@ -67,8 +67,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-
-                _dictionary.Resize(inp.addOrResizeSize, false);
+                Console.WriteLine(_dictionary.EnsureCapacity(0) - 10000);
+                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 10000, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
 
                 _dictionarydiff = DeserializeDataDiff(inp.diffstring);
@@ -80,8 +80,8 @@ namespace hwapp
                     orderedValues.Add(item.Value);
                 }
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
-
-                _dictionary.Resize(inp.addOrResizeSize, false);
+                Console.WriteLine(_dictionary.EnsureCapacity(0) - 40000);
+                _dictionary.Resize(_dictionary.EnsureCapacity(0) - 40000, false);
                 AssertDictionaryEnumerateAndCountRemainsUnchanged(orderedKeys, orderedValues, _dictionary);
             }
         }
@@ -133,6 +133,11 @@ namespace MyBenchmarks
 {
     public class IntroIParam
     {
+        public IntroIParam()
+        {
+            _generator = new CustomizableInputGenerator(1000000);
+        }
+
         public struct ResizeInputElements
         {
             public readonly string dictstring;
@@ -160,7 +165,7 @@ namespace MyBenchmarks
 
             public object Value => value;
 
-            public string DisplayText => $"({value.name},{value.origSize},{value.addOrResizeSize})";
+            public string DisplayText => $"({value.name}{value.addOrResizeSize})";
 
             // serializes my object to string
             public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", {value.origSize}, {value.addOrResizeSize})";
@@ -180,79 +185,101 @@ namespace MyBenchmarks
         public IEnumerable<ResizeInputElements> InParameters()
         {
             var rand = new Random(42);
-            var generator = new CustomizableInputGenerator();
-            int[] counts = { /*10000, 100,*/1000 };
-            float[] initCapacityPercentages = {0.0f, 2.0f};
+            var generator = new CustomizableInputGenerator(1000000);
+            int[] counts = { 100000,10000 };//,10000,1000 };
+            float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
+            DifferentDictionary<int,int> diff;
+            CustomDictionary<int, int> dict;
+            ResizeInputElements inputElement;
 
-            foreach (var count in counts)
+            foreach (var perc in initCapacityPercentages)
             {
-                foreach (var perc in initCapacityPercentages)
+                foreach (var count in counts)
                 {
-                    var diff = generator.WithZombiesAtEndDiff(rand, count, (int)0.2 * count, perc);
-                    var dict = generator.WithZombiesAtEnd(rand, count, (int)0.2 * count, perc);
-                    var inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtEnd), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
+                    //diff = generator.ZombiesAtEndDiff(rand, count, (int)(0.5 * count), perc);
+                    //dict = generator.ZombiesAtEnd(rand, count, (int)(0.5 * count), perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAtEnd), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) -2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) -2)) yield return inputElement;
 
-                    diff = generator.WithZombiesAtFrontDiff(rand, count, (int)0.2 * count, perc);
-                    dict = generator.WithZombiesAtFront(rand, count, (int)0.2 * count, perc);
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.WithZombiesAtFront), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
+                    //diff = generator.ZombiesAtFrontDiff(rand, count, (int)(0.5 * count), perc);
+                    //dict = generator.ZombiesAtFront(rand, count, (int)(0.5 * count), perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAtFront), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.5f, perc);
-                    dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.5f, perc);
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
+                    //diff = generator.ZombiesAreScatteredDiff(rand, count, 0.5f, perc);
+                    //dict = generator.ZombiesAreScattered(rand, count, 0.5f, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    //var diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.1f, perc);
-                    //var dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.1f, perc);
-                    //var inputElement = new ResizeInputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    // UC C
+                    diff = generator.ZombiesAreScatteredChangeCapDiff(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
+                    dict = generator.ZombiesAreScatteredChangeCap(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
+                    inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count), SerializeJobData(diff), SerializeJobData(dict), count, 2*HashHelpers.ExpandPrime(count));
+                    if (_generator.TrimWillResize(dict, 2*HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2*HashHelpers.ExpandPrime(count))) yield return inputElement;
 
-                    //diff = generator.WithPercentageAsZombiesAtRandomDiff(rand, count, 0.9f, perc);
-                    //dict = generator.WithPercentageAsZombiesAtRandom(rand, count, 0.9f, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithPercentageAsZombiesAtRandom), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //UC B
+                    //diff = generator.ZombiesAreScatteredDiff(rand, count, (int)(0.5 * count), 2 * HashHelpers.ExpandPrime(count));
+                    //dict = generator.ZombiesAreScattered(rand, count, (int)(0.5 * count), 2 * HashHelpers.ExpandPrime(count));
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), count, dict.EnsureCapacity(0), dict.Count, 2 * HashHelpers.ExpandPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.ExpandPrime(count));
+                    //if (_generator.TrimWillResize(dict, HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, HashHelpers.ExpandPrime(count))) yield return inputElement;
 
-                    diff = generator.WithDictionaryFullDiff(rand, count, perc);
-                    dict = generator.WithDictionaryFull(rand, count, perc);
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryFull), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    yield return inputElement;
+                    //diff = generator.ZombiesAreScatteredDiff(rand, count, 0.1f, perc);
+                    //dict = generator.ZombiesAreScattered(rand, count, 0.1f, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, 2 * count, perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 2 * count, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.ZombiesAreScatteredDiff(rand, count, 0.9f, perc);
+                    //dict = generator.ZombiesAreScattered(rand, count, 0.9f, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, count, perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, count, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.DictionaryFullDiff(rand, count, 2*HashHelpers.ExpandPrime(count));
+                    //dict = generator.DictionaryFull(rand, count, 2*HashHelpers.ExpandPrime(count));
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryFull), count, dict.EnsureCapacity(0), dict.Count, 2* HashHelpers.ExpandPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.ExpandPrime(dict.Count));
+                    //if (_generator.TrimWillResize(dict, HashHelpers.ExpandPrime(dict.Count)) && _generator.TrimWillResize(diff, HashHelpers.ExpandPrime(diff.Count))) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, (int)(0.5 * count), perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, (int)(0.5 * count), perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, 2 * count, perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, 2 * count, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, 10, perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 10, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, count, perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, count, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, 3, perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 3, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, (int)(0.5 * count), perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, (int)(0.5 * count), perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.GetPrime(dict.EnsureCapacity(0) - 10000));
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 10000) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 10000)) yield return inputElement;
 
-                    //diff = generator.WithDictionaryAllEntriesRemovedAddAgainDiff(rand, count, 1, perc);
-                    //dict = generator.WithDictionaryAllEntriesRemovedAddAgain(rand, count, 1, perc);
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.WithDictionaryAllEntriesRemovedAddAgain), perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
-                    //yield return inputElement;
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, size: HashHelpers.GetPrime(count), addAgainCount: count, initCapacity: HashHelpers.GetPrime(count));
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, size: HashHelpers.GetPrime(count), addAgainCount: count, initCapacity: HashHelpers.GetPrime(count));
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), HashHelpers.GetPrime(count), dict.EnsureCapacity(0), dict.Count, HashHelpers.GetPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.GetPrime(count));
+                    //if (_generator.TrimWillResize(dict, HashHelpers.GetPrime(count)) && _generator.TrimWillResize(diff, HashHelpers.GetPrime(count))) yield return inputElement;
+
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, 10, perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, 10, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
+
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, 3, perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, 3, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
+
+                    //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, 1, perc);
+                    //dict = generator.DictionaryAllEntriesRemovedAddAgain(rand, count, 1, perc);
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryAllEntriesRemovedAddAgain), count, dict.EnsureCapacity(0), dict.Count, perc), SerializeJobData(diff), SerializeJobData(dict), count, dict.Count);
+                    //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
                 }
             }
         }
 
-        private string GetName(string name, float percentage)
-        { return $"{name} {percentage}"; }
+        private string GetName(string name, int originalSize, int curCapacity, int newSize, int startCapacity)
+        { return $"{name} startCapacity:{startCapacity}, originalSize:{originalSize}, curCapacity:{curCapacity}, newSize:{newSize}, ResizeTo:"; }
+
+        private CustomizableInputGenerator _generator;
 
         #region serializing
 
@@ -319,13 +346,59 @@ namespace MyBenchmarks
         [Benchmark]
         public void ResizeNew()
         {
-            DeserializeDataDiff(Field.diffstring).Resize(Field.addOrResizeSize, false);
+            var d = DeserializeDataDiff(Field.diffstring);
+            d.Resize(HashHelpers.GetPrime(Field.addOrResizeSize), false);
         }
 
         [Benchmark]
         public void ResizeOld()
         {
-            DeserializeData(Field.dictstring).Resize(Field.addOrResizeSize, false);
+            var d= DeserializeData(Field.dictstring);
+            d.Resize(HashHelpers.GetPrime(Field.addOrResizeSize), false);
+        }
+
+        //[Benchmark]
+        public void AddOnceNew()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeDataDiff(Field.diffstring);
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, 1, 0);
+        }
+
+        //[Benchmark]
+        public void AddOnceOld()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeData(Field.dictstring);
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, 1, 0);
+        }
+
+        //[Benchmark]
+        public void RemoveOnceNew()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeDataDiff(Field.diffstring);
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, 1, 0);
+        }
+
+        //[Benchmark]
+        public void RemoveOnceOld()
+        {
+            Random rand = new Random(42);
+            var d = DeserializeData(Field.dictstring);
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, 1, 0);
         }
 
         //[Benchmark]
@@ -333,10 +406,10 @@ namespace MyBenchmarks
         {
             Random rand = new Random(42);
             var d = DeserializeDataDiff(Field.diffstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.addOrResizeSize, 0);
         }
 
         //[Benchmark]
@@ -344,48 +417,32 @@ namespace MyBenchmarks
         {
             Random rand = new Random(42);
             var d = DeserializeData(Field.dictstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                d.TryAdd(rand.Next(1073741824, int.MaxValue), rand.Next());
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.addOrResizeSize, 0);
         }
 
        // [Benchmark]
         public void AddAndRemoveNew()
         {
-            var set = new HashSet<int>();
-            int x;
             Random rand = new Random(42);
             var d = DeserializeDataDiff(Field.diffstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                x = rand.Next(1073741824, int.MaxValue);
-                if(d.TryAdd(x, rand.Next()))
-                    set.Add(x);
-            }
-            foreach (var item in set)
-            {
-                d.Remove(item);
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.origSize, Field.addOrResizeSize);
         }
 
         //[Benchmark]
         public void AddAndRemoveOld()
         {
-            var set = new HashSet<int>();
-            int x;
             Random rand = new Random(42);
             var d = DeserializeData(Field.dictstring);
-            for (int i = 0; i < Field.addOrResizeSize; i++)
-            {
-                x = rand.Next(1073741824, int.MaxValue);
-                if (d.TryAdd(x, rand.Next()))
-                    set.Add(x);
-            }
-            foreach (var item in set)
-            {
-                d.Remove(item);
-            }
+
+            _generator.PickNumbers(d);
+
+            _generator.AddThenRemoveAtRandom(d, rand, Field.origSize, Field.addOrResizeSize);
         }
     }
 
@@ -401,7 +458,7 @@ namespace MyBenchmarks
             var generator = new CustomizableInputGenerator();
 
             Console.WriteLine($"(int)(0.65f * 10000) {(int)(0.65f * 10000)}");
-            yield return new ResizeInputElements(generator.WithPercentageAsZombiesAtRandom(rand, 10000, 0.5f), 10000, (int)(0.65f * 10000), 7000);
+            yield return new ResizeInputElements(generator.ZombiesAreScattered(rand, 10000, 0.5f), 10000, (int)(0.65f * 10000), 7000);
             Console.WriteLine($"(int)(0.65f * 10000) = {(int)(0.65f * 10000)}");
             // p.M Large
             // p.M Small
@@ -412,33 +469,33 @@ namespace MyBenchmarks
 
             foreach (var p in customParams)
             {
-                // With a lot of zombies, no bias in order of zombies in array
-                //yield return new ResizeInputElements(WithPercentageAsZombiesAtRandom(rand, p.N, 0.9f), p.N, (int)0.9f, (int)0.95f);
+                //  a lot of zombies, no bias in order of zombies in array
+                //yield return new ResizeInputElements(ZombiesAreScattered(rand, p.N, 0.9f), p.N, (int)0.9f, (int)0.95f);
 
-                //// With a half entries as zombies, no bias in order of zombies in array
-                //yield return new ResizeInputElements(WithPercentageAsZombiesAtRandom(rand, p.N, 0.5f), p.N, (int)0.5f, (int)0.55f);
+                ////  a half entries as zombies, no bias in order of zombies in array
+                //yield return new ResizeInputElements(ZombiesAreScattered(rand, p.N, 0.5f), p.N, (int)0.5f, (int)0.55f);
 
-                //// With not a lot of zombies
-                //yield return new ResizeInputElements(WithPercentageAsZombiesAtRandom(rand, p.N, 0.1f), p.N, (int)0.01f, (int)0.15f);
+                ////  not a lot of zombies
+                //yield return new ResizeInputElements(ZombiesAreScattered(rand, p.N, 0.1f), p.N, (int)0.01f, (int)0.15f);
 
-                //// With zombies at end
-                //yield return new ResizeInputElements(WithZombiesAtEnd(rand, p.N, p.M), p.N, p.M, p.M);
-                //yield return new ResizeInputElements(WithZombiesAtEnd(rand, p.N, p.M), p.N, p.M, p.M + 3);
+                ////  zombies at end
+                //yield return new ResizeInputElements(ZombiesAtEnd(rand, p.N, p.M), p.N, p.M, p.M);
+                //yield return new ResizeInputElements(ZombiesAtEnd(rand, p.N, p.M), p.N, p.M, p.M + 3);
 
-                //// With zombies at front
-                //yield return new ResizeInputElements(WithZombiesAtFront(rand, p.N, p.M), p.N, p.M, p.M);
-                //yield return new ResizeInputElements(WithZombiesAtFront(rand, p.N, p.M), p.N, p.M, p.M + 3);
+                ////  zombies at front
+                //yield return new ResizeInputElements(ZombiesAtFront(rand, p.N, p.M), p.N, p.M, p.M);
+                //yield return new ResizeInputElements(ZombiesAtFront(rand, p.N, p.M), p.N, p.M, p.M + 3);
 
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, p.M);
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, 0);
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, 3);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, p.M);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, 0);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 0), p.N, 0, 3);
 
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 1, 1);
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 1, 3);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 1, 1);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 1, 3);
 
-                //yield return new ResizeInputElements(WithDictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 3, 3);
+                //yield return new ResizeInputElements(DictionaryAllEntriesRemovedAddAgain(rand, p.N, 1), p.N, 3, 3);
 
-                //yield return new ResizeInputElements(WithDictionaryFull(rand, p.N), p.N, p.N, p.N);
+                //yield return new ResizeInputElements(DictionaryFull(rand, p.N), p.N, p.N, p.N);
             }
 
         }

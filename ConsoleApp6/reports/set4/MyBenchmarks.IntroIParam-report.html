@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>IntroIParam</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.11, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.192)
+Processor=Intel Core i7-6650U CPU 2.20GHz (Skylake), ProcessorCount=4
+Frequency=2156248 Hz, Resolution=463.7685 ns, Timer=TSC
+.NET Core SDK=2.1.4
+  [Host]     : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>                      Field</th><th> Mean</th><th>Error</th><th>StdDev</th><th>Median</th>
+</tr>
+</thead><tbody><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 0,100,80)</td><td>531.4 us</td><td>10.41 us</td><td>19.81 us</td><td>528.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 0,100,80)</td><td>536.1 us</td><td>10.56 us</td><td>19.03 us</td><td>533.0 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 0,1000,800)</td><td>5,663.3 us</td><td>149.44 us</td><td>416.57 us</td><td>5,525.5 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 0,1000,800)</td><td>5,692.5 us</td><td>165.96 us</td><td>468.09 us</td><td>5,533.8 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 0,10000,8000)</td><td>60,826.4 us</td><td>1,384.15 us</td><td>3,881.31 us</td><td>60,722.4 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 0,10000,8000)</td><td>59,873.8 us</td><td>1,264.42 us</td><td>3,708.31 us</td><td>60,346.2 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 2,100,80)</td><td>633.4 us</td><td>18.23 us</td><td>53.18 us</td><td>625.9 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 2,100,80)</td><td>675.8 us</td><td>32.24 us</td><td>91.99 us</td><td>648.6 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 2,1000,800)</td><td>5,890.6 us</td><td>162.94 us</td><td>464.89 us</td><td>5,740.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 2,1000,800)</td><td>5,864.2 us</td><td>181.36 us</td><td>520.36 us</td><td>5,712.7 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtEnd 2,10000,8000)</td><td>60,800.8 us</td><td>2,133.07 us</td><td>5,946.15 us</td><td>59,686.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtEnd 2,10000,8000)</td><td>64,431.3 us</td><td>2,230.08 us</td><td>6,326.36 us</td><td>63,581.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 0,100,80)</td><td>692.3 us</td><td>42.41 us</td><td>123.72 us</td><td>643.7 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 0,100,80)</td><td>755.7 us</td><td>51.26 us</td><td>150.33 us</td><td>769.9 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 0,1000,800)</td><td>6,976.1 us</td><td>442.30 us</td><td>1,304.13 us</td><td>6,534.5 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 0,1000,800)</td><td>6,637.2 us</td><td>403.86 us</td><td>1,184.44 us</td><td>6,036.1 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 0,10000,8000)</td><td>60,384.2 us</td><td>1,729.81 us</td><td>4,822.01 us</td><td>59,101.6 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 0,10000,8000)</td><td>74,742.7 us</td><td>4,476.81 us</td><td>13,199.98 us</td><td>80,197.3 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 2,100,80)</td><td>627.9 us</td><td>15.93 us</td><td>45.20 us</td><td>615.9 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 2,100,80)</td><td>629.4 us</td><td>17.11 us</td><td>48.55 us</td><td>612.4 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 2,1000,800)</td><td>6,131.3 us</td><td>202.94 us</td><td>569.05 us</td><td>5,942.8 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 2,1000,800)</td><td>6,683.1 us</td><td>422.03 us</td><td>1,244.36 us</td><td>6,059.4 us</td>
+</tr><tr><td>ResizeNew</td><td>(WithZombiesAtFront 2,10000,8000)</td><td>59,800.3 us</td><td>1,357.59 us</td><td>3,895.19 us</td><td>58,871.3 us</td>
+</tr><tr><td>ResizeOld</td><td>(WithZombiesAtFront 2,10000,8000)</td><td>58,342.4 us</td><td>1,278.11 us</td><td>3,625.79 us</td><td>57,309.5 us</td>
+</tr></tbody></table>
+</body>
+</html>

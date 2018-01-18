@@ -1,34 +1,343 @@
 ﻿using hwapp;
 using System;
-using System.Collections.Generic;
 
 namespace MyBenchmarks
 {
     public class CustomizableInputGenerator
     {
-        public void RemoveOneItemDiff(DifferentDictionary<int, int> input)
-        {
-            int midItem = input.Count / 2;
-            int i = 0;
-            int keyToRemove = -1;
-            foreach (var item in input)
-            {
-                if (i == midItem)
-                {
-                    keyToRemove = item.Key;
-                    break;
-                }
-                i++;
-            }
+        private int[] _firstHalf;
+        private int[] _secondHalf;
+        private Random _ran;
 
-            int val;
-            if (input.TryGetValue(keyToRemove, out val))
+        public CustomizableInputGenerator(int maxValue)
+        {
+            _ran = new Random(42);
+            int x = maxValue;
+            int h = (int)(maxValue / 2.0);
+
+            _firstHalf = new int[h];
+            for (int i = 0; i < _firstHalf.Length; i++)
             {
-                input.Remove(keyToRemove);
+                _firstHalf[i] = i;
             }
+            _ran.Shuffle(_firstHalf);
+
+            _secondHalf = new int[x - h];
+            for (int i = 0; i < _secondHalf.Length; i++)
+            {
+                _secondHalf[i] = int.MaxValue - i;
+            }
+            _ran.Shuffle(_secondHalf);
         }
 
-        public DifferentDictionary<int, int> WithPercentageAsZombiesAtRandomDiff(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
+        public int[] PickNumbers(DifferentDictionary<int, int> input)
+        {
+            if (input.Count == 0)
+            {
+                return _firstHalf;
+            }
+            return _secondHalf;
+        }
+
+        public int[] PickNumbers(CustomDictionary<int, int> input)
+        {
+            if (input.Count == 0)
+            {
+                return _firstHalf;
+            }
+            return _secondHalf;
+        }
+
+        public CustomDictionary<int, int> AddThenRemoveAtFront(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtFront(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+            return input;
+        }
+        public CustomDictionary<int, int> AddThenRemoveAtEnd(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[addCount - i - 1]);
+            }
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtEnd(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[addCount - i - 1]);
+            }
+            return input;
+        }
+
+        public bool TrimWillResize(CustomDictionary<int, int> input, int capacity)
+        {
+            if (capacity < input.Count)
+            {
+                return false;
+            }
+
+            int newSize = HashHelpers.GetPrime(capacity);
+            if (newSize > input.EnsureCapacity(0))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool TrimWillResize(DifferentDictionary<int, int> input, int capacity)
+        {
+            if (capacity < input.Count)
+            {
+                return false;
+            }
+
+            int newSize = HashHelpers.GetPrime(capacity);
+            if (newSize > input.EnsureCapacity(0))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public CustomDictionary<int, int> AddThenRemoveAtRandom(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            input.EnsureCapacity(nextCapacity);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtRandom(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            input.EnsureCapacity(nextCapacity);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public CustomDictionary<int, int> AddThenRemoveAtRandom(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtRandom(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public DifferentDictionary<int, int> AddThenRemoveAtRandomThenAddAgain(DifferentDictionary<int, int> input, Random rand, int addCount, int removeCount, int addAgainCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            abc = PickNumbers(input);
+            keys = new int[addAgainCount];
+            Array.Copy(abc, addCount, keys, 0, addAgainCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+            return input;
+        }
+
+        public CustomDictionary<int,int> AddThenRemoveAtRandomThenAddAgain(CustomDictionary<int, int> input, Random rand, int addCount, int removeCount, int addAgainCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            abc = PickNumbers(input);
+            keys = new int[addAgainCount];
+            Array.Copy(abc, addCount, keys, 0, addAgainCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+            return input;
+        }
+
+        public DifferentDictionary<int, int> ZombiesAreScatteredChangeCapDiff(Random rand, int size, int removeCount, int initCapacity, int nextCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount, nextCapacity);
+        }
+
+        public DifferentDictionary<int, int> ZombiesAreScatteredDiff(Random rand, int size, int removeCount, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
+
+        public DifferentDictionary<int, int> ZombiesAreScatteredDiff(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
             int newCount = (int)(size * (1.0f - percentageToRemove));
@@ -40,63 +349,14 @@ namespace MyBenchmarks
             {
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            var keysToRemove = new HashSet<int>();
-            var more = new HashSet<int>();
-            int key;
-            int maxRandValue = 1073741823;
-            int goodRange = (int)(maxRandValue * percentageToRemove);
-            for (int i = 0; i < size; i++)
-            {
-                key = rand.Next(maxRandValue);
-                while (!input.TryAdd(key, rand.Next()))
-                    key = rand.Next(maxRandValue);
-                if (key < goodRange)
-                {
-                    keysToRemove.Add(key);
-                }
-                else
-                {
-                    more.Add(key);
-                }
-            }
-
-            if (keysToRemove.Count <= (size - newCount))
-            {
-                foreach (var item in keysToRemove)
-                {
-                    input.Remove(item);
-                }
-                int i = 0;
-                foreach (var item in more)
-                {
-                    if (input.Count == newCount)
-                    {
-                        return input;
-                    }
-                    input.Remove(item);
-                    i++;
-                }
-            }
-            else
-            {
-                int i = 0;
-                foreach (var item in keysToRemove)
-                {
-                    if (input.Count == newCount)
-                    {
-                        return input;
-                    }
-                    input.Remove(item);
-                    i++;
-                }
-            }
-            return input;
+            
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
         }
         
         /// <summary>
-        /// With zombies at front
+        ///  zombies at front
         /// </summary>
-        public DifferentDictionary<int,int> WithZombiesAtFrontDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
+        public DifferentDictionary<int,int> ZombiesAtFrontDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
             DifferentDictionary<int,int> input;
             if (initCapacityPercentage == 0.0f)
@@ -107,31 +367,14 @@ namespace MyBenchmarks
             {
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-
-            var keysToRemove = new HashSet<int>();
-
-            int r;
-            for (int i = 0; i < size; i++)
-            {
-                r = rand.Next(1073741823);
-                while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next(1073741823);
-                if (i < removeCount)
-                {
-                    keysToRemove.Add(r);
-                }
-            }
-            foreach (var i in keysToRemove)
-            {
-                input.Remove(i);
-            }
-            return input;
+            
+            return AddThenRemoveAtFront(input, rand, size, removeCount); ;
         }
 
         /// <summary>
-        /// With zombies at front
+        ///  zombies at front
         /// </summary>
-        public DifferentDictionary<int, int> WithZombiesAtEndDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
+        public DifferentDictionary<int, int> ZombiesAtEndDiff(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -142,27 +385,11 @@ namespace MyBenchmarks
             {
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            var keysToRemove = new HashSet<int>();
 
-            int r;
-            for (int i = 0; i < size; i++)
-            {
-                r = rand.Next(1073741823);
-                while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next(1073741823);
-                if (i >= size - removeCount)
-                {
-                    keysToRemove.Add(r);
-                }
-            }
-            foreach (var i in keysToRemove)
-            {
-                input.Remove(i);
-            }
-            return input;
+            return AddThenRemoveAtEnd(input, rand, size, removeCount);
         }
 
-        public DifferentDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgainDiff(Random rand, int size, int addAgainCount, float initCapacityPercentage)
+        public DifferentDictionary<int, int> DictionaryAllEntriesRemovedAddAgainDiff(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -173,21 +400,26 @@ namespace MyBenchmarks
             {
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            for (int i = 0; i < size; i++)
-            {
-                input.TryAdd(rand.Next(1073741823), rand.Next());
-            }
-            input.Clear();
 
-            for (int i = 0; i < addAgainCount; i++)
-            {
-                while (!input.TryAdd(rand.Next(1073741823), rand.Next())) ;
-            }
-
-            return input;
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
-        public DifferentDictionary<int, int> WithDictionaryFullDiff(Random rand, int size, float initCapacityPercentage)
+        public DifferentDictionary<int, int> DictionaryAllEntriesRemovedAddAgainDiff(Random rand, int size, int addAgainCount, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            if (initCapacity == 0.0f)
+            {
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
+        }
+
+        public DifferentDictionary<int, int> DictionaryFullDiff(Random rand, int size, float initCapacityPercentage)
         {
             DifferentDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -198,107 +430,95 @@ namespace MyBenchmarks
             {
                 input = new DifferentDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            for (int i = 0; i < size; i++)
+
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+
+        public DifferentDictionary<int, int> DictionaryFullDiff(Random rand, int size, int initCapacity)
+        {
+            DifferentDictionary<int, int> input;
+            if (initCapacity == 0.0)
             {
-                input.TryAdd(rand.Next(1073741823), rand.Next());
+                input = new DifferentDictionary<int, int>();
+            }
+            else
+            {
+                input = new DifferentDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+
+        public CustomDictionary<int, int> ZombiesAreScatteredChangeCap(Random rand, int size, int removeCount, int initCapacity, int nextCapacity)
+        {
+            CustomDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount, nextCapacity);
+        }
+
+        public CustomDictionary<int, int> ZombiesAreScattered(Random rand, int size, int removeCount, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
+
+        public CustomDictionary<int, int> ZombiesAreScattered(Random rand, int size, float percentageToRemove, float initCapacityPercentage)
+        {
+            CustomDictionary<int, int> input;
+            int newCount = (int)(size * (1.0f - percentageToRemove));
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
+            }
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
+
+
+        /// <summary>
+        ///  zombies at front
+        /// </summary>
+        public CustomDictionary<int, int> ZombiesAtFront(Random rand, int size, int removeCount, float initCapacityPercentage)
+        {
+            CustomDictionary<int, int> input;
+            if (initCapacityPercentage == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
             
-            return input;
-        }
-        
-        public void RemoveOneItem(CustomDictionary<int, int> input)
-        {
-            int midItem = input.Count / 2;
-            int i = 0;
-            int keyToRemove = -1;
-            foreach (var item in input)
-            {
-                if (i == midItem)
-                {
-                    keyToRemove = item.Key;
-                    break;
-                }
-                i++;
-            }
-
-            int val;
-            if (input.TryGetValue(keyToRemove, out val))
-            {
-                input.Remove(keyToRemove);
-            }
-        }
-
-        public CustomDictionary<int, int> WithPercentageAsZombiesAtRandom(Random rand, int size, float percentage, float initCapacityPercentage)
-        {
-            CustomDictionary<int, int> input;
-            if (initCapacityPercentage == 0.0f)
-            {
-                input = new CustomDictionary<int, int>();
-            }
-            else
-            {
-                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
-            }
-            var keysToRemove = new HashSet<int>();
-            int key;
-            int maxRandValue = 1073741823;
-            int goodRange = (int)(maxRandValue * percentage);
-            for (int i = 0; i < size; i++)
-            {
-                key = rand.Next(maxRandValue);
-                while (!input.TryAdd(key, rand.Next()))
-                    key = rand.Next(maxRandValue);
-                if (key < goodRange)
-                {
-                    keysToRemove.Add(key);
-                }
-            }
-            foreach (var item in keysToRemove)
-            {
-                input.Remove(item);
-            }
-            return input;
-        }
-
-
-        /// <summary>
-        /// With zombies at front
-        /// </summary>
-        public CustomDictionary<int, int> WithZombiesAtFront(Random rand, int size, int removeCount, float initCapacityPercentage)
-        {
-            CustomDictionary<int, int> input;
-            if (initCapacityPercentage == 0.0f)
-            {
-                input = new CustomDictionary<int, int>();
-            }
-            else
-            {
-                input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
-            }
-            var keysToRemove = new HashSet<int>();
-
-            int r;
-            for (int i = 0; i < size; i++)
-            {
-                r = rand.Next(1073741823);
-                while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next(1073741823);
-                if (i < removeCount)
-                {
-                    keysToRemove.Add(r);
-                }
-            }
-            foreach (var i in keysToRemove)
-            {
-                input.Remove(i);
-            }
-            return input;
+            return AddThenRemoveAtFront(input, rand, size, removeCount);
         }
 
         /// <summary>
-        /// With zombies at front
+        ///  zombies at front
         /// </summary>
-        public CustomDictionary<int, int> WithZombiesAtEnd(Random rand, int size, int removeCount, float initCapacityPercentage)
+        public CustomDictionary<int, int> ZombiesAtEnd(Random rand, int size, int removeCount, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -309,27 +529,11 @@ namespace MyBenchmarks
             {
                 input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            var keysToRemove = new HashSet<int>();
-
-            int r;
-            for (int i = 0; i < size; i++)
-            {
-                r = rand.Next(1073741823);
-                while (!input.TryAdd(r, rand.Next()))
-                    r = rand.Next(1073741823);
-                if (i >= size - removeCount)
-                {
-                    keysToRemove.Add(r);
-                }
-            }
-            foreach (var i in keysToRemove)
-            {
-                input.Remove(i);
-            }
-            return input;
+            
+            return AddThenRemoveAtEnd(input, rand, size, removeCount);
         }
 
-        public CustomDictionary<int, int> WithDictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, float initCapacityPercentage)
+        public CustomDictionary<int, int> DictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -340,21 +544,26 @@ namespace MyBenchmarks
             {
                 input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            for (int i = 0; i < size; i++)
-            {
-                input.TryAdd(rand.Next(1073741823), rand.Next());
-            }
-            input.Clear();
-
-            for (int i = 0; i < addAgainCount; i++)
-            {
-                while (!input.TryAdd(rand.Next(1073741823), rand.Next())) ;
-            }
-
-            return input;
+            
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
         }
 
-        public CustomDictionary<int, int> WithDictionaryFull(Random rand, int size, float initCapacityPercentage)
+        public CustomDictionary<int, int> DictionaryAllEntriesRemovedAddAgain(Random rand, int size, int addAgainCount, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            if (initCapacity == 0.0f)
+            {
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandomThenAddAgain(input, rand, size, size, addAgainCount);
+        }
+
+        public CustomDictionary<int, int> DictionaryFull(Random rand, int size, float initCapacityPercentage)
         {
             CustomDictionary<int, int> input;
             if (initCapacityPercentage == 0.0f)
@@ -365,12 +574,37 @@ namespace MyBenchmarks
             {
                 input = new CustomDictionary<int, int>((int)(size * initCapacityPercentage));
             }
-            for (int i = 0; i < size; i++)
+            
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+
+        public CustomDictionary<int, int> DictionaryFull(Random rand, int size, int initCapacity)
+        {
+            CustomDictionary<int, int> input;
+            if (initCapacity == 0)
             {
-                input.TryAdd(rand.Next(1073741823), rand.Next());
+                input = new CustomDictionary<int, int>();
+            }
+            else
+            {
+                input = new CustomDictionary<int, int>(initCapacity);
             }
 
-            return input;
+            return AddThenRemoveAtEnd(input, rand, size, 0);
+        }
+    }
+    internal static class RandomExtensions
+    {
+        public static void Shuffle<T>(this Random rng, T[] array)
+        {
+            int n = array.Length;
+            while (n > 1)
+            {
+                int k = rng.Next(n--);
+                T temp = array[n];
+                array[n] = array[k];
+                array[k] = temp;
+            }
         }
     }
 }
