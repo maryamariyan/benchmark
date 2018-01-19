@@ -16,8 +16,98 @@ namespace hwapp
     {
         static void Main(string[] args)
         {
-            new Program().TestBothResizeApisOnDefaultInput();
-            //var summary = BenchmarkRunner.Run<IntroIParam>();
+            //new Program().TestBothResizeApisOnDefaultInput();
+            //try
+            //{
+            //    var summary = BenchmarkRunner.Run<IntroIParam>();
+
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //}
+
+            //TestUseCaseC();
+
+            int a = 0;
+            do
+            {
+                int.TryParse(Console.ReadLine(), out a);
+                Console.WriteLine($"HashHelpers.GetPrime(a)={HashHelpers.GetPrime(a)}");
+            } while (a != 0);
+        }
+
+        private static void TestUseCaseC()
+        {
+            var _generator = new CustomizableInputGenerator(1000000);
+
+            var rand = new Random(42);
+            var generator = new CustomizableInputGenerator(1000000);
+            int[] counts = { 1000 };//,10000,1000 };
+            var count = counts[0];
+            float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
+            DifferentDictionary<int, int> diff;
+            CustomDictionary<int, int> dict;
+            ResizeInputElements inputElement;
+
+            int initCount = HashHelpers.ExpandPrime(count);
+            int removeCount = 0;//count;
+            int initCapacity = count;
+
+            diff = generator.ZombiesAreScatteredDiff(rand, initCount, removeCount, initCapacity);
+            dict = generator.ZombiesAreScattered(rand, initCount, removeCount, initCapacity);
+            Console.WriteLine($"capacity became {dict.EnsureCapacity(0)} and should be equal to {HashHelpers.ExpandPrime(initCount)}");
+
+            int resizeTo = HashHelpers.ExpandPrime(dict.EnsureCapacity(0));//dict.Count;
+            inputElement = new ResizeInputElements(
+                GetName(nameof(generator.ZombiesAreScattered), initCount, dict.EnsureCapacity(0), dict.Count, initCapacity),
+                SerializeJobData(diff),
+                SerializeJobData(dict),
+                initCount,
+                resizeTo);//, 4 * HashHelpers.ExpandPrime(count));
+
+            Console.WriteLine($"side note, HashHelpers.ExpandPrime(131) ={ HashHelpers.ExpandPrime(131)} and HashHelpers.GetPrime(131)={HashHelpers.GetPrime(131)}");
+            Console.WriteLine($"side note, HashHelpers.ExpandPrime(100) ={ HashHelpers.ExpandPrime(100)} and HashHelpers.GetPrime(100)={HashHelpers.GetPrime(100)}");
+
+            Console.WriteLine($"old plan: wanted resize to GetPrime({ 2 * HashHelpers.ExpandPrime(count)}) which is  {HashHelpers.GetPrime(4 * HashHelpers.ExpandPrime(count))}");
+            Console.WriteLine($"wanna resize to dict.Count={dict.Count} which should be {initCount - removeCount}");
+            Console.WriteLine($"initial capacity requested was {initCapacity} I probably got {HashHelpers.GetPrime(initCapacity)}");
+            Console.WriteLine($"added {initCount} then removed {removeCount}");
+            var jumpedCapacity = HashHelpers.GetPrime(initCapacity);
+            for (int i = 0; i < initCount; i++)
+            {
+                if (jumpedCapacity == i)
+                {
+                    jumpedCapacity = HashHelpers.ExpandPrime(i);
+                }
+            }
+            Console.WriteLine($"I assume the capacity jumped to {HashHelpers.ExpandPrime(HashHelpers.GetPrime(HashHelpers.ExpandPrime(count)))} or more realistically to {jumpedCapacity}");
+            Console.WriteLine($"removed {removeCount}");
+            Console.WriteLine($"for dict {GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count)}");
+            Console.WriteLine($"for diff {GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), diff.EnsureCapacity(0), diff.Count, count)}");
+            try
+            {
+                if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))
+                {
+                    dict.Resize(resizeTo, false);
+                    Console.WriteLine("good");
+                    diff.Resize(resizeTo, false);
+                    Console.WriteLine("good");
+                }
+                else
+                {
+                    dict.Resize(resizeTo, false);
+                    Console.WriteLine("bad");
+                    diff.Resize(resizeTo, false);
+                    Console.WriteLine("bad");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+            System.Threading.Thread.Sleep(20000);
         }
 
         /// <summary>
@@ -182,15 +272,37 @@ namespace MyBenchmarks
             }
         }
 
+        public IEnumerable<ResizeInputElements> UseCaseC(CustomizableInputGenerator generator, Random rand, int count)
+        {
+            DifferentDictionary<int, int> diff;
+            CustomDictionary<int, int> dict;
+            ResizeInputElements inputElement;
+
+            int initCount = HashHelpers.ExpandPrime(count);
+            int removeCount = 0;// count;
+            int initCapacity = count;
+
+            diff = generator.ZombiesAreScatteredDiff(rand, initCount, removeCount, initCapacity);
+            dict = generator.ZombiesAreScattered(rand, initCount, removeCount, initCapacity);
+            int resizeTo = HashHelpers.ExpandPrime(dict.EnsureCapacity(0));//dict.Count;
+            inputElement = new ResizeInputElements(
+                GetName(nameof(generator.ZombiesAreScattered), initCount, dict.EnsureCapacity(0), dict.Count, initCapacity),
+                SerializeJobData(diff),
+                SerializeJobData(dict),
+                initCount,
+                resizeTo);
+            /*if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))*/ yield return inputElement;
+        }
+
         public IEnumerable<ResizeInputElements> InParameters()
         {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator(1000000);
-            int[] counts = { 100000,10000 };//,10000,1000 };
+            int[] counts = { 50000 };
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
-            DifferentDictionary<int,int> diff;
-            CustomDictionary<int, int> dict;
-            ResizeInputElements inputElement;
+            //DifferentDictionary<int,int> diff;
+            //CustomDictionary<int, int> dict;
+            //ResizeInputElements inputElement;
 
             foreach (var perc in initCapacityPercentages)
             {
@@ -212,10 +324,16 @@ namespace MyBenchmarks
                     //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
                     // UC C
-                    diff = generator.ZombiesAreScatteredChangeCapDiff(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
-                    dict = generator.ZombiesAreScatteredChangeCap(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
-                    inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count), SerializeJobData(diff), SerializeJobData(dict), count, 2 * HashHelpers.ExpandPrime(count));
-                    if (_generator.TrimWillResize(dict, 2 * HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2 * HashHelpers.ExpandPrime(count))) yield return inputElement;
+                    //diff = generator.ZombiesAreScatteredChangeCapDiff(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
+                    //dict = generator.ZombiesAreScatteredChangeCap(rand, HashHelpers.ExpandPrime(count), count, count, 3 * HashHelpers.ExpandPrime(count));
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.ZombiesAreScattered), HashHelpers.ExpandPrime(count), dict.EnsureCapacity(0), dict.Count, count), SerializeJobData(diff), SerializeJobData(dict), HashHelpers.ExpandPrime(count), 4 * HashHelpers.ExpandPrime(count));
+                    //if (_generator.TrimWillResize(dict, 2 * HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2 * HashHelpers.ExpandPrime(count))) yield return inputElement;
+
+                    // UC C-prime - no manual resize
+                    foreach (var item in UseCaseC(generator, rand, count))
+                    {
+                        yield return item;
+                    } 
 
                     //UC B
                     //diff = generator.ZombiesAreScatteredDiff(rand, count, (int)(0.5 * count), 2 * HashHelpers.ExpandPrime(count));
@@ -234,9 +352,9 @@ namespace MyBenchmarks
                     //if (_generator.TrimWillResize(dict, dict.EnsureCapacity(0) - 2) && _generator.TrimWillResize(diff, diff.EnsureCapacity(0) - 2)) yield return inputElement;
 
                     //UC A
-                    //diff = generator.DictionaryFullDiff(rand, count, 2*HashHelpers.ExpandPrime(count));
-                    //dict = generator.DictionaryFull(rand, count, 2*HashHelpers.ExpandPrime(count));
-                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryFull), count, dict.EnsureCapacity(0), dict.Count, 2* HashHelpers.ExpandPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.ExpandPrime(dict.Count));
+                    //diff = generator.DictionaryFullDiff(rand, count, 2 * HashHelpers.ExpandPrime(count));
+                    //dict = generator.DictionaryFull(rand, count, 2 * HashHelpers.ExpandPrime(count));
+                    //inputElement = new ResizeInputElements(GetName(nameof(generator.DictionaryFull), count, dict.EnsureCapacity(0), dict.Count, 2 * HashHelpers.ExpandPrime(count)), SerializeJobData(diff), SerializeJobData(dict), count, HashHelpers.ExpandPrime(dict.Count));
                     //if (_generator.TrimWillResize(dict, HashHelpers.ExpandPrime(dict.Count)) && _generator.TrimWillResize(diff, HashHelpers.ExpandPrime(diff.Count))) yield return inputElement;
 
                     //diff = generator.DictionaryAllEntriesRemovedAddAgainDiff(rand, count, 2 * count, perc);
@@ -277,7 +395,7 @@ namespace MyBenchmarks
             }
         }
 
-        private string GetName(string name, int originalSize, int curCapacity, int newSize, int startCapacity)
+        public static string GetName(string name, int originalSize, int curCapacity, int newSize, int startCapacity)
         { return $"{name} startCapacity:{startCapacity}, originalSize:{originalSize}, curCapacity:{curCapacity}, newSize:{newSize}, ResizeTo:"; }
 
         private CustomizableInputGenerator _generator;
