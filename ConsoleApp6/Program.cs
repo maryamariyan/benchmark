@@ -17,7 +17,8 @@ namespace hwapp
     {
         static void Main(string[] args)
         {
-            ABC();
+            //ABC();
+            DEF();
             //new Program().TestBothResizeApisOnDefaultInput();
             //try
             //{
@@ -39,15 +40,71 @@ namespace hwapp
             //} while (a != 0);
         }
 
+        private static readonly IEnumerable<string> s_64bit = new string[]
+        {
+            "95e85f8e-67a3-4367-974f-dd24d8bb2ca2",
+            "eb3d6fe9-de64-43a9-8f58-bddea727b1ca"
+        };
+
+        private static readonly IEnumerable<string> s_32bit = new string[]
+        {
+            "25b1f130-7517-48e3-96b0-9da44e8bfe0e",
+            "ba5a3625-bc38-4bf1-a707-a3cfe2158bae"
+        };
+
+        private static void DEF()
+        {
+            var dictionary = new DifferentDictionary<string, string>(41);
+            string a;
+            HashSet<string> other = new HashSet<string>();
+            for (int i = 0; i < 38; i++)
+            {
+                a = Guid.NewGuid().ToString();
+                other.Add(a);
+                dictionary.Add(a,a);
+            }
+            string[] chained = (Environment.Is64BitProcess ? s_64bit : s_32bit).ToArray();
+            dictionary.Add(chained[0],chained[0]);
+            dictionary.Add(chained[1],chained[1]);
+
+            foreach (var item in other)
+            {
+                dictionary.Remove(item);
+            }
+
+            Console.WriteLine($"before trim, dictionary.EnsureCapacity(0)={dictionary.EnsureCapacity(0)}");
+            dictionary.TrimExcess(3);
+
+            Console.WriteLine($"after trim, dictionary.Count={dictionary.Count}");
+            Console.WriteLine($"after trim, dictionary.EnsureCapacity(0)={dictionary.EnsureCapacity(0)}");
+
+            string val;
+
+            if (!dictionary.TryGetValue(chained[0], out val))
+            {
+                Console.WriteLine("oh damn 1");
+            }
+
+            if (!dictionary.TryGetValue(chained[1], out val))
+            {
+                Console.WriteLine("oh damn 1");
+            }
+
+            foreach (var item in other)
+            {
+                if (dictionary.TryGetValue(item, out val))
+                {
+                    Console.WriteLine("oh damn 2");
+                }
+            }
+        }
+
         private static void ABC()
         {
-
-            var dictionary = new DifferentDictionary<string, string>(97);
+            var dictionary = new DifferentDictionary<string, string>(41);
 
             var chainedItems1 = new StringsMatchingNonRandomizedHashCode().Data.Skip(0).Take(20).ToArray();
             var chainedItems2 = new StringsMatchingNonRandomizedHashCode().Data.Skip(20).Take(20).ToArray();
-            var chainedItems3 = new StringsMatchingNonRandomizedHashCode().Data.Skip(40).Take(20).ToArray();
-            var chainedItems4 = new StringsMatchingNonRandomizedHashCode().Data.Skip(60).Take(20).ToArray();
 
             foreach (var item in chainedItems1)
             {
@@ -64,23 +121,8 @@ namespace hwapp
                 dictionary.Remove(item);
             }
 
-            foreach (var item in chainedItems3)
-            {
-                dictionary.Add(item, item);
-            }
-
-            foreach (var item in chainedItems4)
-            {
-                dictionary.Add(item, item);
-            }
-
-            foreach (var item in chainedItems3)
-            {
-                dictionary.Remove(item);
-            }
-
             Console.WriteLine($"before trim, dictionary.EnsureCapacity(0)={dictionary.EnsureCapacity(0)}");
-            dictionary.TrimExcess(43);
+            dictionary.TrimExcess(23);
 
             Console.WriteLine($"after trim, dictionary.Count={dictionary.Count}");
             Console.WriteLine($"after trim, dictionary.EnsureCapacity(0)={dictionary.EnsureCapacity(0)}");
@@ -98,13 +140,6 @@ namespace hwapp
                 if (!dictionary.TryGetValue(item, out val))
                 {
                     Console.WriteLine("oh damn2");
-                }
-            }
-            foreach (var item in chainedItems4)
-            {
-                if (!dictionary.TryGetValue(item, out val))
-                {
-                    Console.WriteLine("oh damn4");
                 }
             }
         }

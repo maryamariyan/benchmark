@@ -555,7 +555,7 @@ namespace hwapp
                     ref Entry entry = ref oldEntries[i];
                     int bucket = entry.hashCode % newSize;
                     entry.next = buckets[bucket];
-                    buckets[bucket] = i;
+                    buckets[bucket] = k;
                     entries[k] = entry;
                     k++;
                 }
