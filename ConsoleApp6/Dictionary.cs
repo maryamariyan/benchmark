@@ -555,7 +555,7 @@ namespace hwapp
                     ref Entry entry = ref oldEntries[i];
                     int bucket = entry.hashCode % newSize;
                     entry.next = buckets[bucket];
-                    buckets[bucket] = k;
+                    buckets[bucket] = i;
                     entries[k] = entry;
                     k++;
                 }
@@ -2065,6 +2065,7 @@ namespace hwapp
             Entry[] entries = new Entry[newSize];
 
             int count = _count;
+            Array.Copy(_entries, 0, entries, 0, count);
 
             if (forceNewHashCodes)
             {
@@ -2076,25 +2077,16 @@ namespace hwapp
                     }
                 }
             }
-
-            int k = 0;
+            
             for (int i = 0; i < count; i++)
             {
-                if (_entries[i].hashCode >= 0)
+                if (entries[i].hashCode >= 0)
                 {
-                    ref Entry entry = ref _entries[i];
-                    int bucket = entry.hashCode % newSize;
-                    entry.next = buckets[bucket];
+                    int bucket = entries[i].hashCode % newSize;
+                    entries[i].next = buckets[bucket];
                     buckets[bucket] = i;
-                    entries[k] = entry;
-                    k++;
                 }
             }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _version++;
-            _count = k;
 
             _buckets = buckets;
             _entries = entries;
