@@ -1,5 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Columns;
+using BenchmarkDotNet.Attributes.Jobs;
 using BenchmarkDotNet.Code;
+using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Running;
 using hwapp;
 using MyBenchmarks;
@@ -46,6 +49,8 @@ namespace MyBenchmarks
 {
     //[MySuperJob]
     //[SimpleJob(RunStrategy.Monitoring, launchCount: 1, warmupCount: 1, targetCount: 10)]
+    [SimpleJob(RunStrategy.Monitoring, targetCount: 30)]
+    [AllStatisticsColumn]
     public class IntroIParam
     {
         public IntroIParam()
@@ -121,7 +126,6 @@ namespace MyBenchmarks
 
         public IEnumerable<ResizeInputElements> InParameters()
         {
-            var rand = new Random(42);
             var generator = new CustomizableInputGenerator(1000000);
             int[] counts = { 10000 };
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
@@ -155,7 +159,7 @@ namespace MyBenchmarks
                     //if (_generator.TrimWillResize(dict, 2 * HashHelpers.ExpandPrime(count)) && _generator.TrimWillResize(diff, 2 * HashHelpers.ExpandPrime(count))) yield return inputElement;
 
                     // UC C-prime - no manual resize
-                    foreach (var item in UseCaseC(generator, rand, count))
+                    foreach (var item in UseCaseC(generator, _random, count))
                     {
                         yield return item;
                     } 
@@ -228,6 +232,7 @@ namespace MyBenchmarks
         DD<int, int> d;
         CC<int, int> c;
         int prime;
+        private static Random _random = new Random(42);
 
         [IterationSetup(Target = nameof(ResizeNew))]
         public void IterationSetup()
