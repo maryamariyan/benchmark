@@ -526,46 +526,86 @@ namespace hwapp
 
         public void Resize(int newSize, bool forceNewHashCodes)
         {
+            Debug.Assert(Count <= newSize);
             int[] buckets = new int[newSize];
             for (int i = 0; i < buckets.Length; i++)
             {
                 buckets[i] = -1;
             }
-            ref Entry[] oldEntries = ref _entries;
+            Entry[] entries = new Entry[newSize];
+
             int count = _count;
+            int copyCount = newSize >= count ? count : newSize;
+            Array.Copy(_entries, 0, entries, 0, copyCount);
 
             if (forceNewHashCodes)
             {
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < copyCount; i++)
                 {
-                    ref Entry entry = ref oldEntries[i];
+                    if (entries[i].hashCode != -1)
+                    {
+                        entries[i].hashCode = (_comparer.GetHashCode(entries[i].key) & 0x7FFFFFFF);
+                    }
+                }
+            }
+
+            for (int i = 0; i < copyCount; i++)
+            {
+                if (entries[i].hashCode >= 0)
+                {
+                    int bucket = entries[i].hashCode % newSize;
+                    entries[i].next = buckets[bucket];
+                    buckets[bucket] = i;
+                }
+            }
+
+            if (copyCount == count)
+            {
+                _buckets = buckets;
+                _entries = entries;
+                return;
+            }
+
+            ref Entry[] entriesRef = ref _entries;
+            // remove zombies after index (newSize - 1)
+            int t = _freeList;
+            while (t != -1)
+            {
+                if (t > newSize - 1)
+                {
+                    if (t == _freeList) _freeList = entriesRef[t].next;
+                    t = entriesRef[t].next;
+                    _freeCount--;
+                }
+            }
+            // update hashcode for entries after index (newSize - 1)
+            if (forceNewHashCodes)
+            {
+                for (int i = newSize; i < count; i++)
+                {
+                    ref Entry entry = ref entriesRef[i];
                     if (entry.hashCode != -1)
                     {
                         entry.hashCode = (_comparer.GetHashCode(entry.key) & 0x7FFFFFFF);
                     }
                 }
             }
-
-            Entry[] entries = new Entry[newSize];
-            int k = 0;
-            for (int i = 0; i < count; i++)
+            // move valid entries after index (newSize - 1)
+            for (int i = newSize; i < count; i++)
             {
-                if (oldEntries[i].hashCode >= 0)
+                if (entriesRef[i].hashCode >= 0)
                 {
-                    ref Entry entry = ref oldEntries[i];
+                    t = _freeList;
+                    _freeList = entriesRef[t].next;
+                    _freeCount--;
+                    ref Entry entry = ref entriesRef[i];
                     int bucket = entry.hashCode % newSize;
                     entry.next = buckets[bucket];
-                    buckets[bucket] = k;
-                    entries[k] = entry;
-                    k++;
+                    buckets[bucket] = t;
+                    entries[t] = entry;
                 }
             }
-
-            _freeList = -1;
-            _freeCount = 0;
             _version++;
-            _count = k;
-
             _buckets = buckets;
             _entries = entries;
         }
@@ -2054,7 +2094,7 @@ namespace hwapp
         {
             Resize(HashHelpers.ExpandPrime(_count), false);
         }
-        
+
         public void Resize(int newSize, bool forceNewHashCodes)
         {
             int[] buckets = new int[newSize];
@@ -2077,7 +2117,7 @@ namespace hwapp
                     }
                 }
             }
-            
+
             for (int i = 0; i < count; i++)
             {
                 if (entries[i].hashCode >= 0)

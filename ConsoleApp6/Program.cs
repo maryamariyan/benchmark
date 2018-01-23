@@ -682,7 +682,7 @@ namespace MyBenchmarks
         {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator(1000000);
-            int[] counts = { 60000 };
+            int[] counts = { 1000 };
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
             //DD<int,int> diff;
             //CC<int, int> dict;
