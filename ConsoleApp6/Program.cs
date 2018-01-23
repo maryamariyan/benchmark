@@ -10,6 +10,8 @@ using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;
+using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Attributes.Jobs;
 
 namespace hwapp
 {
@@ -605,6 +607,7 @@ namespace hwapp
 
 namespace MyBenchmarks
 {
+    [SimpleJob(RunStrategy.Monitoring, launchCount: 1, warmupCount: 1, targetCount: 10)]
     public class IntroIParam
     {
         public IntroIParam()
