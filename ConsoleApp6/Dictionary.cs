@@ -567,16 +567,21 @@ namespace hwapp
             }
 
             ref Entry[] entriesRef = ref _entries;
-            // remove zombies after index (newSize - 1)
-            int t = _freeList;
-            while (t != -1)
+            // update free list entries
+            int cur = _freeList;
+            int freeList = -1;
+            int prev = -1;
+            while (cur != -1)
             {
-                if (t > newSize - 1)
+                if (cur < newSize)
                 {
-                    if (t == _freeList) _freeList = entriesRef[t].next;
-                    t = entriesRef[t].next;
-                    _freeCount--;
+                    if (prev == -1)
+                        freeList = cur;
+                    else
+                        entries[prev].next = cur;
+                    prev = cur;
                 }
+                cur = entriesRef[cur].next;
             }
             // update hashcode for entries after index (newSize - 1)
             if (forceNewHashCodes)
@@ -595,16 +600,18 @@ namespace hwapp
             {
                 if (entriesRef[i].hashCode >= 0)
                 {
-                    t = _freeList;
-                    _freeList = entriesRef[t].next;
-                    _freeCount--;
+                    cur = freeList;
+                    freeList = entries[cur].next;
                     ref Entry entry = ref entriesRef[i];
                     int bucket = entry.hashCode % newSize;
                     entry.next = buckets[bucket];
-                    buckets[bucket] = t;
-                    entries[t] = entry;
+                    buckets[bucket] = cur;
+                    entries[cur] = entry;
                 }
             }
+            _freeList = freeList;
+            _freeCount -= count - newSize;
+            _count -= count - newSize;
             _version++;
             _buckets = buckets;
             _entries = entries;

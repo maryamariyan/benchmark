@@ -845,36 +845,31 @@ namespace MyBenchmarks
             return FromByteArray(raw, assemblyStyle);
         }
         #endregion
+
+        DD<int, int> d;
+        CC<int, int> c;
+        int prime;
+
+        [IterationSetup(Target = nameof(ResizeNew))]
+        public void IterationSetup()
+        {
+            d = DeserializeDataDiff(Field.diffstring);
+            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+        }
+
+        [IterationSetup(Target = nameof(ResizeOld))]
+        public void IterationSetupOld()
+        {
+            c = DeserializeData(Field.dictstring);
+            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+        }
+
+        [Benchmark]
+        public void ResizeNew() => d.Resize(prime, false);
+
+        [Benchmark]
+        public void ResizeOld() => c.Resize(prime, false);
         
-        [Benchmark]
-        public void ResizeNew()
-        {
-            var d = DeserializeDataDiff(Field.diffstring);
-            d.Resize(HashHelpers.GetPrime(Field.addOrResizeSize), false);
-        }
-
-        [Benchmark]
-        public void ResizeOld()
-        {
-            var d= DeserializeData(Field.dictstring);
-            d.Resize(HashHelpers.GetPrime(Field.addOrResizeSize), false);
-        }
-
-        [Benchmark]
-        public void ResizeNewOnlyDes()
-        {
-            var d = DeserializeDataDiff(Field.diffstring);
-            HashHelpers.GetPrime(Field.addOrResizeSize);
-        }
-
-        [Benchmark]
-        public void ResizeOldOnlyDes()
-        {
-            var d = DeserializeData(Field.dictstring);
-            HashHelpers.GetPrime(Field.addOrResizeSize);
-        }
-
-
         //[Benchmark]
         public void AddOnceNew()
         {
