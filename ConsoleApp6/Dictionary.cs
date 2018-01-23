@@ -15,7 +15,7 @@ using System.Xml.Serialization;
 namespace hwapp
 {
     /// <summary>
-    /// Used internally to control behavior of insertion into a <see cref="CustomDictionary{TKey, TValue}"/>.
+    /// Used internally to control behavior of insertion into a <see cref="CC{TKey, TValue}"/>.
     /// </summary>
     internal enum InsertionBehavior : byte
     {
@@ -37,7 +37,7 @@ namespace hwapp
 
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class DifferentDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
+    public class DD<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
     {
         private struct Entry
         {
@@ -64,13 +64,13 @@ namespace hwapp
         private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
         private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
 
-        public DifferentDictionary() : this(0, null) { }
+        public DD() : this(0, null) { }
 
-        public DifferentDictionary(int capacity) : this(capacity, null) { }
+        public DD(int capacity) : this(capacity, null) { }
 
-        public DifferentDictionary(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
+        public DD(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
 
-        public DifferentDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        public DD(int capacity, IEqualityComparer<TKey> comparer)
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException();// ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
@@ -83,9 +83,9 @@ namespace hwapp
             }
         }
 
-        public DifferentDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
+        public DD(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
 
-        public DifferentDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
+        public DD(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
             this(dictionary != null ? dictionary.Count : 0, comparer)
         {
             if (dictionary == null)
@@ -94,13 +94,13 @@ namespace hwapp
                 //ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
             }
 
-            // It is likely that the passed-in dictionary is DifferentDictionary<TKey,TValue>. When this is the case,
+            // It is likely that the passed-in dictionary is DD<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
-            // We only do this when dictionary is DifferentDictionary<TKey,TValue> and not a subclass, to maintain
+            // We only do this when dictionary is DD<TKey,TValue> and not a subclass, to maintain
             // back-compat  subclasses that may have overridden the enumerator behavior.
-            if (dictionary.GetType() == typeof(DifferentDictionary<TKey, TValue>))
+            if (dictionary.GetType() == typeof(DD<TKey, TValue>))
             {
-                DifferentDictionary<TKey, TValue> d = (DifferentDictionary<TKey, TValue>)dictionary;
+                DD<TKey, TValue> d = (DD<TKey, TValue>)dictionary;
                 int count = d._count;
                 Entry[] entries = d._entries;
                 for (int i = 0; i < count; i++)
@@ -119,9 +119,9 @@ namespace hwapp
             }
         }
 
-        public DifferentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
+        public DD(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
 
-        public DifferentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
+        public DD(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
             this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, comparer)
         {
             if (collection == null)
@@ -136,7 +136,7 @@ namespace hwapp
             }
         }
 
-        protected DifferentDictionary(SerializationInfo info, StreamingContext context)
+        protected DD(SerializationInfo info, StreamingContext context)
         {
             // We can't do anything  the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -531,23 +531,23 @@ namespace hwapp
             {
                 buckets[i] = -1;
             }
-            Entry[] entries = new Entry[newSize];
-
+            ref Entry[] oldEntries = ref _entries;
             int count = _count;
 
             if (forceNewHashCodes)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    if (entries[i].hashCode != -1)
+                    ref Entry entry = ref oldEntries[i];
+                    if (entry.hashCode != -1)
                     {
-                        entries[i].hashCode = (_comparer.GetHashCode(entries[i].key) & 0x7FFFFFFF);
+                        entry.hashCode = (_comparer.GetHashCode(entry.key) & 0x7FFFFFFF);
                     }
                 }
             }
 
+            Entry[] entries = new Entry[newSize];
             int k = 0;
-            ref Entry[] oldEntries = ref _entries;
             for (int i = 0; i < count; i++)
             {
                 if (oldEntries[i].hashCode >= 0)
@@ -992,7 +992,7 @@ namespace hwapp
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>,
             IDictionaryEnumerator
         {
-            private DifferentDictionary<TKey, TValue> _dictionary;
+            private DD<TKey, TValue> _dictionary;
             private int _version;
             private int _index;
             private KeyValuePair<TKey, TValue> _current;
@@ -1001,7 +1001,7 @@ namespace hwapp
             internal const int DictEntry = 1;
             internal const int KeyValuePair = 2;
 
-            internal Enumerator(DifferentDictionary<TKey, TValue> dictionary, int getEnumeratorRetType)
+            internal Enumerator(DD<TKey, TValue> dictionary, int getEnumeratorRetType)
             {
                 _dictionary = dictionary;
                 _version = dictionary._version;
@@ -1118,9 +1118,9 @@ namespace hwapp
         [DebuggerDisplay("Count = {Count}")]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
-            private DifferentDictionary<TKey, TValue> _dictionary;
+            private DD<TKey, TValue> _dictionary;
 
-            public KeyCollection(DifferentDictionary<TKey, TValue> dictionary)
+            public KeyCollection(DD<TKey, TValue> dictionary)
             {
                 if (dictionary == null)
                 {
@@ -1268,12 +1268,12 @@ namespace hwapp
 
             public struct Enumerator : IEnumerator<TKey>, System.Collections.IEnumerator
             {
-                private DifferentDictionary<TKey, TValue> _dictionary;
+                private DD<TKey, TValue> _dictionary;
                 private int _index;
                 private int _version;
                 private TKey _currentKey;
 
-                internal Enumerator(DifferentDictionary<TKey, TValue> dictionary)
+                internal Enumerator(DD<TKey, TValue> dictionary)
                 {
                     _dictionary = dictionary;
                     _version = dictionary._version;
@@ -1345,9 +1345,9 @@ namespace hwapp
         [DebuggerDisplay("Count = {Count}")]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
-            private DifferentDictionary<TKey, TValue> _dictionary;
+            private DD<TKey, TValue> _dictionary;
 
-            public ValueCollection(DifferentDictionary<TKey, TValue> dictionary)
+            public ValueCollection(DD<TKey, TValue> dictionary)
             {
                 if (dictionary == null)
                 {
@@ -1493,12 +1493,12 @@ namespace hwapp
 
             public struct Enumerator : IEnumerator<TValue>, System.Collections.IEnumerator
             {
-                private DifferentDictionary<TKey, TValue> _dictionary;
+                private DD<TKey, TValue> _dictionary;
                 private int _index;
                 private int _version;
                 private TValue _currentValue;
 
-                internal Enumerator(DifferentDictionary<TKey, TValue> dictionary)
+                internal Enumerator(DD<TKey, TValue> dictionary)
                 {
                     _dictionary = dictionary;
                     _version = dictionary._version;
@@ -1568,7 +1568,7 @@ namespace hwapp
 
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class CustomDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
+    public class CC<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
     {
         private struct Entry
         {
@@ -1595,13 +1595,13 @@ namespace hwapp
         private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
         private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
 
-        public CustomDictionary() : this(0, null) { }
+        public CC() : this(0, null) { }
 
-        public CustomDictionary(int capacity) : this(capacity, null) { }
+        public CC(int capacity) : this(capacity, null) { }
 
-        public CustomDictionary(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
+        public CC(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
 
-        public CustomDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        public CC(int capacity, IEqualityComparer<TKey> comparer)
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException();// ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
@@ -1614,9 +1614,9 @@ namespace hwapp
             }
         }
 
-        public CustomDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
+        public CC(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
 
-        public CustomDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
+        public CC(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
             this(dictionary != null ? dictionary.Count : 0, comparer)
         {
             if (dictionary == null)
@@ -1625,13 +1625,13 @@ namespace hwapp
                 //ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
             }
 
-            // It is likely that the passed-in dictionary is CustomDictionary<TKey,TValue>. When this is the case,
+            // It is likely that the passed-in dictionary is CC<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
-            // We only do this when dictionary is CustomDictionary<TKey,TValue> and not a subclass, to maintain
+            // We only do this when dictionary is CC<TKey,TValue> and not a subclass, to maintain
             // back-compat  subclasses that may have overridden the enumerator behavior.
-            if (dictionary.GetType() == typeof(CustomDictionary<TKey, TValue>))
+            if (dictionary.GetType() == typeof(CC<TKey, TValue>))
             {
-                CustomDictionary<TKey, TValue> d = (CustomDictionary<TKey, TValue>)dictionary;
+                CC<TKey, TValue> d = (CC<TKey, TValue>)dictionary;
                 int count = d._count;
                 Entry[] entries = d._entries;
                 for (int i = 0; i < count; i++)
@@ -1650,9 +1650,9 @@ namespace hwapp
             }
         }
 
-        public CustomDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
+        public CC(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
 
-        public CustomDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
+        public CC(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
             this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, comparer)
         {
             if (collection == null)
@@ -1667,7 +1667,7 @@ namespace hwapp
             }
         }
 
-        protected CustomDictionary(SerializationInfo info, StreamingContext context)
+        protected CC(SerializationInfo info, StreamingContext context)
         {
             // We can't do anything  the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -2477,7 +2477,7 @@ namespace hwapp
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>,
             IDictionaryEnumerator
         {
-            private CustomDictionary<TKey, TValue> _dictionary;
+            private CC<TKey, TValue> _dictionary;
             private int _version;
             private int _index;
             private KeyValuePair<TKey, TValue> _current;
@@ -2486,7 +2486,7 @@ namespace hwapp
             internal const int DictEntry = 1;
             internal const int KeyValuePair = 2;
 
-            internal Enumerator(CustomDictionary<TKey, TValue> dictionary, int getEnumeratorRetType)
+            internal Enumerator(CC<TKey, TValue> dictionary, int getEnumeratorRetType)
             {
                 _dictionary = dictionary;
                 _version = dictionary._version;
@@ -2603,9 +2603,9 @@ namespace hwapp
         [DebuggerDisplay("Count = {Count}")]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
-            private CustomDictionary<TKey, TValue> _dictionary;
+            private CC<TKey, TValue> _dictionary;
 
-            public KeyCollection(CustomDictionary<TKey, TValue> dictionary)
+            public KeyCollection(CC<TKey, TValue> dictionary)
             {
                 if (dictionary == null)
                 {
@@ -2753,12 +2753,12 @@ namespace hwapp
 
             public struct Enumerator : IEnumerator<TKey>, System.Collections.IEnumerator
             {
-                private CustomDictionary<TKey, TValue> _dictionary;
+                private CC<TKey, TValue> _dictionary;
                 private int _index;
                 private int _version;
                 private TKey _currentKey;
 
-                internal Enumerator(CustomDictionary<TKey, TValue> dictionary)
+                internal Enumerator(CC<TKey, TValue> dictionary)
                 {
                     _dictionary = dictionary;
                     _version = dictionary._version;
@@ -2830,9 +2830,9 @@ namespace hwapp
         [DebuggerDisplay("Count = {Count}")]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
-            private CustomDictionary<TKey, TValue> _dictionary;
+            private CC<TKey, TValue> _dictionary;
 
-            public ValueCollection(CustomDictionary<TKey, TValue> dictionary)
+            public ValueCollection(CC<TKey, TValue> dictionary)
             {
                 if (dictionary == null)
                 {
@@ -2978,12 +2978,12 @@ namespace hwapp
 
             public struct Enumerator : IEnumerator<TValue>, System.Collections.IEnumerator
             {
-                private CustomDictionary<TKey, TValue> _dictionary;
+                private CC<TKey, TValue> _dictionary;
                 private int _index;
                 private int _version;
                 private TValue _currentValue;
 
-                internal Enumerator(CustomDictionary<TKey, TValue> dictionary)
+                internal Enumerator(CC<TKey, TValue> dictionary)
                 {
                     _dictionary = dictionary;
                     _version = dictionary._version;
@@ -3133,7 +3133,7 @@ namespace hwapp
         public const int MaxPrimeArrayLength = 0x7FEFFFFD;
 
 
-        // Used by Hashtable and CustomDictionary's SeralizationInfo .ctor's to store the SeralizationInfo
+        // Used by Hashtable and CC's SeralizationInfo .ctor's to store the SeralizationInfo
         // object until OnDeserialization is called.
         private static ConditionalWeakTable<object, SerializationInfo> s_serializationInfoTable;
 

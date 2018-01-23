@@ -18,17 +18,17 @@ namespace hwapp
         static void Main(string[] args)
         {
             //ABC();
-            DEF();
+            //DEF();
             //new Program().TestBothResizeApisOnDefaultInput();
-            //try
-            //{
-            //    var summary = BenchmarkRunner.Run<IntroIParam>();
+            try
+            {
+                var summary = BenchmarkRunner.Run<IntroIParam>();
 
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             //TestUseCaseC();
 
@@ -52,20 +52,87 @@ namespace hwapp
             "ba5a3625-bc38-4bf1-a707-a3cfe2158bae"
         };
 
+        private static void GHI()
+        {
+            string[] chained = (Environment.Is64BitProcess ? s_64bit : s_32bit).ToArray();
+            var dictionary = new DD<string, string>(11);
+            string a;
+            HashSet<string> other = new HashSet<string>();
+
+            Console.WriteLine($"1 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+            int m = 0;
+            do
+            {
+                a = Guid.NewGuid().ToString();
+                if (!other.Contains(a) && string.Compare(a, chained[0]) != 0 && string.Compare(a, chained[1]) != 0)
+                {
+                    other.Add(a);
+                    dictionary.Add(a, a);
+                    m++;
+                }
+            } while (m < 3);
+            Console.WriteLine($"2 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+            dictionary.Add(chained[0], chained[0]);
+            dictionary.Add(chained[1], chained[1]);
+            Console.WriteLine($"3 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+
+            m = 0;
+            do
+            {
+                a = Guid.NewGuid().ToString();
+                if (!other.Contains(a) && string.Compare(a, chained[0]) != 0 && string.Compare(a, chained[1]) != 0)
+                {
+                    other.Add(a);
+                    dictionary.Add(a, a);
+                    m++;
+                }
+            } while (m < 5);
+            Console.WriteLine($"4 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+
+            foreach (var item in other.Take(2))
+            {
+                dictionary.Remove(item);
+            }
+            Console.WriteLine($"5 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+
+            for (int i = 0; i < 138; i++)
+            {
+                a = Guid.NewGuid().ToString();
+                other.Add(a);
+                dictionary.Add(a, a);
+            }
+            Console.WriteLine($"6 dictionary.EnsureCapacity(0) {dictionary.EnsureCapacity(0)}");
+
+            string val;
+            Console.WriteLine(dictionary.TryGetValue(chained[1], out val));
+
+            if (string.Compare(chained[1], val) != 0)
+            {
+                Console.WriteLine("heres the bug");
+            }
+            
+            Console.WriteLine(dictionary.TryGetValue(chained[0], out val));
+
+            if (string.Compare(chained[0], val) != 0)
+            {
+                Console.WriteLine("heres the bug");
+            }
+        }
+
         private static void DEF()
         {
-            var dictionary = new DifferentDictionary<string, string>(41);
+            var dictionary = new DD<string, string>(41);
             string a;
             HashSet<string> other = new HashSet<string>();
             for (int i = 0; i < 38; i++)
             {
                 a = Guid.NewGuid().ToString();
                 other.Add(a);
-                dictionary.Add(a,a);
+                dictionary.Add(a, a);
             }
             string[] chained = (Environment.Is64BitProcess ? s_64bit : s_32bit).ToArray();
-            dictionary.Add(chained[0],chained[0]);
-            dictionary.Add(chained[1],chained[1]);
+            dictionary.Add(chained[0], chained[0]);
+            dictionary.Add(chained[1], chained[1]);
 
             foreach (var item in other)
             {
@@ -79,29 +146,19 @@ namespace hwapp
             Console.WriteLine($"after trim, dictionary.EnsureCapacity(0)={dictionary.EnsureCapacity(0)}");
 
             string val;
-
-            if (!dictionary.TryGetValue(chained[0], out val))
+            try
             {
-                Console.WriteLine("oh damn 1");
+                dictionary.TryGetValue(chained[0], out val);
             }
-
-            if (!dictionary.TryGetValue(chained[1], out val))
+            catch (IndexOutOfRangeException e)
             {
-                Console.WriteLine("oh damn 1");
-            }
-
-            foreach (var item in other)
-            {
-                if (dictionary.TryGetValue(item, out val))
-                {
-                    Console.WriteLine("oh damn 2");
-                }
+                Console.WriteLine($"Was expecting exception e: {e.GetType()}, {e.Message}");
             }
         }
 
         private static void ABC()
         {
-            var dictionary = new DifferentDictionary<string, string>(41);
+            var dictionary = new DD<string, string>(41);
 
             var chainedItems1 = new StringsMatchingNonRandomizedHashCode().Data.Skip(0).Take(20).ToArray();
             var chainedItems2 = new StringsMatchingNonRandomizedHashCode().Data.Skip(20).Take(20).ToArray();
@@ -153,8 +210,8 @@ namespace hwapp
             int[] counts = { 1000 };//,10000,1000 };
             var count = counts[0];
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
-            DifferentDictionary<int, int> diff;
-            CustomDictionary<int, int> dict;
+            DD<int, int> diff;
+            CC<int, int> dict;
             ResizeInputElements inputElement;
 
             int initCount = HashHelpers.ExpandPrime(count);
@@ -223,8 +280,8 @@ namespace hwapp
         /// </summary>
         private void TestBothResizeApisOnDefaultInput()
         {
-            CustomDictionary<int, int> _dictionary;
-            DifferentDictionary<int, int> _dictionarydiff;
+            CC<int, int> _dictionary;
+            DD<int, int> _dictionarydiff;
             var iparams = new IntroIParam().InParameters();
             foreach (var inp in iparams)
             {
@@ -286,7 +343,7 @@ namespace hwapp
         private static void AssertDictionaryEnumerateAndCountRemainsUnchanged(
             List<int> orderedKeys,
             List<int> orderedValues,
-            CustomDictionary<int, int> dictionary)
+            CC<int, int> dictionary)
         {
             if (dictionary.Count != orderedKeys.Count) throw new Exception("wrong _dictionary.Count != orderedKeys.Count");
             if (dictionary.Count != orderedValues.Count) throw new Exception("wrong _dictionary.Count != orderedValues.Count");
@@ -306,7 +363,7 @@ namespace hwapp
         /// Call input and test Resize won't change dictionary
         /// Compare contents after Resize (count and enumerate and compare)
         /// </summary>
-        public static void TestBothDictionaryHaveSameEnumeration(CustomDictionary<int, int> _dictionary, CustomDictionary<int, int> dict2)
+        public static void TestBothDictionaryHaveSameEnumeration(CC<int, int> _dictionary, CC<int, int> dict2)
         {
             var orderedKeys = new List<int>();
             var orderedValues = new List<int>();
@@ -601,8 +658,8 @@ namespace MyBenchmarks
 
         public IEnumerable<ResizeInputElements> UseCaseC(CustomizableInputGenerator generator, Random rand, int count)
         {
-            DifferentDictionary<int, int> diff;
-            CustomDictionary<int, int> dict;
+            DD<int, int> diff;
+            CC<int, int> dict;
             ResizeInputElements inputElement;
 
             int initCount = HashHelpers.ExpandPrime(count);
@@ -625,10 +682,10 @@ namespace MyBenchmarks
         {
             var rand = new Random(42);
             var generator = new CustomizableInputGenerator(1000000);
-            int[] counts = { 50000 };
+            int[] counts = { 60000 };
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
-            //DifferentDictionary<int,int> diff;
-            //CustomDictionary<int, int> dict;
+            //DD<int,int> diff;
+            //CC<int, int> dict;
             //ResizeInputElements inputElement;
 
             foreach (var perc in initCapacityPercentages)
@@ -729,25 +786,25 @@ namespace MyBenchmarks
 
         #region serializing
 
-        public static string SerializeJobData(CustomDictionary<int, int> myDictionary)
+        public static string SerializeJobData(CC<int, int> myDictionary)
         {
             return ToBase64String(myDictionary);
         }
 
-        public static CustomDictionary<int, int> DeserializeData(string RawData)
+        public static CC<int, int> DeserializeData(string RawData)
         {
-            CustomDictionary<int, int> myDictionary = (CustomDictionary<int, int>)FromBase64String(RawData);
+            CC<int, int> myDictionary = (CC<int, int>)FromBase64String(RawData);
             return myDictionary;
         }
         
-        public static string SerializeJobData(DifferentDictionary<int, int> myDictionary)
+        public static string SerializeJobData(DD<int, int> myDictionary)
         {
             return ToBase64String(myDictionary);
         }
 
-        public static DifferentDictionary<int, int> DeserializeDataDiff(string RawData)
+        public static DD<int, int> DeserializeDataDiff(string RawData)
         {
-            DifferentDictionary<int, int> myDictionary = (DifferentDictionary<int, int>)FromBase64String(RawData);
+            DD<int, int> myDictionary = (DD<int, int>)FromBase64String(RawData);
             return myDictionary;
         }
 
@@ -973,7 +1030,7 @@ namespace MyBenchmarks
         private void AssertDictionaryEnumerateAndCountRemainsUnchanged(
             List<int> orderedKeys,
             List<int> orderedValues,
-            CustomDictionary<int, int> dictionary)
+            CC<int, int> dictionary)
         {
             if (dictionary.Count != orderedKeys.Count) throw new Exception("wrong _dictionary.Count != orderedKeys.Count");
             if (dictionary.Count != orderedValues.Count) throw new Exception("wrong _dictionary.Count != orderedValues.Count");
@@ -995,7 +1052,7 @@ namespace MyBenchmarks
         /// </summary>
         public void TestBothResizeApisOnDefaultInput()
         {
-            CustomDictionary<int,int> _dictionary;
+            CC<int,int> _dictionary;
             foreach (var inp in GetInput())
             {
                 _dictionary = inp.dict;
