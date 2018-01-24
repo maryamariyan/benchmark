@@ -498,7 +498,6 @@ namespace hwapp
         }
 
         public void Resize(int newSize, bool forceNewHashCodes)
-
         {
             int[] buckets = new int[newSize];
             for (int i = 0; i < buckets.Length; i++)

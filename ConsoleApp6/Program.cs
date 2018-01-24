@@ -93,8 +93,8 @@ namespace MyBenchmarks
             public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", \"{value.befstring}\", {value.origSize}, {value.addOrResizeSize})";
         }
 
-        [ParamsSource(nameof(Parameters))]
-        public ResizeInputElements Field;
+        //[ParamsSource(nameof(Parameters))]
+        //public ResizeInputElements Field;
 
         public IEnumerable<IParam> Parameters()
         {
@@ -243,22 +243,58 @@ namespace MyBenchmarks
         [IterationSetup(Target = nameof(Approach2))]
         public void IterationSetupApproach2()
         {
-            d = Serializer.DeserializeDataDiff(Field.diffstring);
-            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+            int count = 10000;
+
+            int initCount = HashHelpers.ExpandPrime(count);
+            int removeCount = 0;// count;
+            int initCapacity = count;
+
+            var diff = _generator.ZombiesAreScatteredDiff(_random, initCount, removeCount, initCapacity);
+            var resizeTo = HashHelpers.ExpandPrime(diff.EnsureCapacity(0));//dict.Count;
+            
+            /*if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))*/
+            //yield return inputElement;
+
+            d = diff;
+            prime = HashHelpers.GetPrime(resizeTo);
         }
 
         [IterationSetup(Target = nameof(Approach1))]
         public void IterationSetupApproach1()
         {
-            c = Serializer.DeserializeData(Field.dictstring);
-            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+            int count = 10000;
+
+            int initCount = HashHelpers.ExpandPrime(count);
+            int removeCount = 0;// count;
+            int initCapacity = count;
+            
+            var dict = _generator.ZombiesAreScattered(_random, initCount, removeCount, initCapacity);
+            var resizeTo = HashHelpers.ExpandPrime(dict.EnsureCapacity(0));//dict.Count;
+
+            /*if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))*/
+            //yield return inputElement;
+
+            c = dict;
+            prime = HashHelpers.GetPrime(resizeTo);
         }
 
         [IterationSetup(Target = nameof(Before))]
         public void IterationSetupBefore()
         {
-            b = Serializer.DeserializeDataBef(Field.befstring);
-            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+            int count = 10000;
+
+            int initCount = HashHelpers.ExpandPrime(count);
+            int removeCount = 0;// count;
+            int initCapacity = count;
+            
+            var bef = _generator.ZombiesAreScatteredBef(_random, initCount, removeCount, initCapacity);
+            var resizeTo = HashHelpers.ExpandPrime(bef.EnsureCapacity(0));//dict.Count;
+
+            /*if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))*/
+            //yield return inputElement;
+
+            b = bef;
+            prime = HashHelpers.GetPrime(resizeTo);
         }
 
         [Benchmark]
