@@ -504,31 +504,40 @@ namespace hwapp
             {
                 buckets[i] = -1;
             }
-            Entry[] entries = new Entry[newSize];
-
+            ref Entry[] oldEntries = ref _entries;
             int count = _count;
-            Array.Copy(_entries, 0, entries, 0, count);
 
             if (forceNewHashCodes)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    if (entries[i].hashCode != -1)
+                    ref Entry entry = ref oldEntries[i];
+                    if (entry.hashCode != -1)
                     {
-                        entries[i].hashCode = (_comparer.GetHashCode(entries[i].key) & 0x7FFFFFFF);
+                        entry.hashCode = (_comparer.GetHashCode(entry.key) & 0x7FFFFFFF);
                     }
                 }
             }
 
+            Entry[] entries = new Entry[newSize];
+            int k = 0;
             for (int i = 0; i < count; i++)
             {
-                if (entries[i].hashCode >= 0)
+                if (oldEntries[i].hashCode >= 0)
                 {
-                    int bucket = entries[i].hashCode % newSize;
-                    entries[i].next = buckets[bucket];
-                    buckets[bucket] = i;
+                    ref Entry entry = ref oldEntries[i];
+                    int bucket = entry.hashCode % newSize;
+                    entry.next = buckets[bucket];
+                    buckets[bucket] = k;
+                    entries[k] = entry;
+                    k++;
                 }
             }
+
+            _freeList = -1;
+            _freeCount = 0;
+            _version++;
+            _count = k;
 
             _buckets = buckets;
             _entries = entries;

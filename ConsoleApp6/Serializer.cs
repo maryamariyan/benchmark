@@ -13,6 +13,17 @@ namespace MyBenchmarks
 
         #region serializing
 
+        public static string SerializeJobData(BB<int, int> myDictionary)
+        {
+            return ToBase64String(myDictionary);
+        }
+
+        public static BB<int, int> DeserializeDataBef(string RawData)
+        {
+            BB<int, int> myDictionary = (BB<int, int>)FromBase64String(RawData);
+            return myDictionary;
+        }
+
         public static string SerializeJobData(CC<int, int> myDictionary)
         {
             return ToBase64String(myDictionary);

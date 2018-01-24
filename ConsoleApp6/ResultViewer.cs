@@ -137,6 +137,7 @@ namespace hwapp
             float[] initCapacityPercentages = { 0.0f };//, 1.0f, 2.0f };//, 1.0f};
             DD<int, int> diff;
             CC<int, int> dict;
+            BB<int, int> bef;
             ResizeInputElements inputElement;
 
             int initCount = HashHelpers.ExpandPrime(count);
@@ -145,6 +146,7 @@ namespace hwapp
 
             diff = generator.ZombiesAreScatteredDiff(rand, initCount, removeCount, initCapacity);
             dict = generator.ZombiesAreScattered(rand, initCount, removeCount, initCapacity);
+            bef = generator.ZombiesAreScatteredBef(rand, initCount, removeCount, initCapacity);
             Console.WriteLine($"capacity became {dict.EnsureCapacity(0)} and should be equal to {HashHelpers.ExpandPrime(initCount)}");
 
             int resizeTo = HashHelpers.ExpandPrime(dict.EnsureCapacity(0));//dict.Count;
@@ -152,6 +154,7 @@ namespace hwapp
                 GetName(nameof(generator.ZombiesAreScattered), initCount, dict.EnsureCapacity(0), dict.Count, initCapacity),
                 Serializer.SerializeJobData(diff),
                 Serializer.SerializeJobData(dict),
+                Serializer.SerializeJobData(bef),
                 initCount,
                 resizeTo);//, 4 * HashHelpers.ExpandPrime(count));
 

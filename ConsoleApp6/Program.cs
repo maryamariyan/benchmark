@@ -62,15 +62,17 @@ namespace MyBenchmarks
         {
             public readonly string dictstring;
             public readonly string diffstring;
+            public readonly string befstring;
             public readonly string name;
             public readonly int origSize;
             public readonly int addOrResizeSize;
 
-            public ResizeInputElements(string nam, string diffdictstring, string dictionarystring, int orig, int trim)
+            public ResizeInputElements(string nam, string diffdictstring, string dictionarystring, string beffstring, int orig, int trim)
             {
                 name = nam;
                 diffstring = diffdictstring;
                 dictstring = dictionarystring;
+                befstring = beffstring;
                 origSize = orig;
                 addOrResizeSize = trim;
             }
@@ -88,7 +90,7 @@ namespace MyBenchmarks
             public string DisplayText => $"({value.name}{value.addOrResizeSize})";
 
             // serializes my object to string
-            public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", {value.origSize}, {value.addOrResizeSize})";
+            public string ToSourceCode() => $"new ResizeInputElements(\"{value.name}\", \"{value.diffstring}\", \"{value.dictstring}\", \"{value.befstring}\", {value.origSize}, {value.addOrResizeSize})";
         }
 
         [ParamsSource(nameof(Parameters))]
@@ -106,6 +108,7 @@ namespace MyBenchmarks
         {
             DD<int, int> diff;
             CC<int, int> dict;
+            BB<int, int> bef;
             ResizeInputElements inputElement;
 
             int initCount = HashHelpers.ExpandPrime(count);
@@ -114,11 +117,13 @@ namespace MyBenchmarks
 
             diff = generator.ZombiesAreScatteredDiff(rand, initCount, removeCount, initCapacity);
             dict = generator.ZombiesAreScattered(rand, initCount, removeCount, initCapacity);
+            bef = generator.ZombiesAreScatteredBef(rand, initCount, removeCount, initCapacity);
             int resizeTo = HashHelpers.ExpandPrime(dict.EnsureCapacity(0));//dict.Count;
             inputElement = new ResizeInputElements(
                 GetName(nameof(generator.ZombiesAreScattered), initCount, dict.EnsureCapacity(0), dict.Count, initCapacity),
                 Serializer.SerializeJobData(diff),
                 Serializer.SerializeJobData(dict),
+                Serializer.SerializeJobData(bef),
                 initCount,
                 resizeTo);
             /*if (_generator.TrimWillResize(dict, resizeTo) && _generator.TrimWillResize(diff, resizeTo))*/ yield return inputElement;
@@ -231,27 +236,38 @@ namespace MyBenchmarks
         
         DD<int, int> d;
         CC<int, int> c;
+        BB<int, int> b;
         int prime;
         private static Random _random = new Random(42);
 
-        [IterationSetup(Target = nameof(ResizeNew))]
-        public void IterationSetup()
+        [IterationSetup(Target = nameof(Approach2))]
+        public void IterationSetupApproach2()
         {
             d = Serializer.DeserializeDataDiff(Field.diffstring);
             prime = HashHelpers.GetPrime(Field.addOrResizeSize);
         }
 
-        [IterationSetup(Target = nameof(ResizeOld))]
-        public void IterationSetupOld()
+        [IterationSetup(Target = nameof(Approach1))]
+        public void IterationSetupApproach1()
         {
             c = Serializer.DeserializeData(Field.dictstring);
             prime = HashHelpers.GetPrime(Field.addOrResizeSize);
         }
 
-        [Benchmark]
-        public void ResizeNew() => d.Resize(prime, false);
+        [IterationSetup(Target = nameof(Before))]
+        public void IterationSetupBefore()
+        {
+            b = Serializer.DeserializeDataBef(Field.befstring);
+            prime = HashHelpers.GetPrime(Field.addOrResizeSize);
+        }
 
         [Benchmark]
-        public void ResizeOld() => c.Resize(prime, false);
+        public void Approach2() => d.Resize(prime, false);
+
+        [Benchmark]
+        public void Approach1() => c.Resize(prime, false);
+
+        [Benchmark]
+        public void Before() => b.Resize(prime, false);
     }
 }

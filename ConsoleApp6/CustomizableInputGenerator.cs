@@ -39,6 +39,15 @@ namespace MyBenchmarks
             return _secondHalf;
         }
 
+        public int[] PickNumbers(BB<int, int> input)
+        {
+            if (input.Count == 0)
+            {
+                return _firstHalf;
+            }
+            return _secondHalf;
+        }
+
         public int[] PickNumbers(CC<int, int> input)
         {
             if (input.Count == 0)
@@ -153,6 +162,30 @@ namespace MyBenchmarks
             return true;
         }
 
+        public BB<int, int> AddThenRemoveAtRandom(BB<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            input.EnsureCapacity(nextCapacity);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
         public CC<int, int> AddThenRemoveAtRandom(CC<int, int> input, Random rand, int addCount, int removeCount, int nextCapacity)
         {
             var abc = PickNumbers(input);
@@ -202,6 +235,28 @@ namespace MyBenchmarks
         }
 
         public CC<int, int> AddThenRemoveAtRandom(CC<int, int> input, Random rand, int addCount, int removeCount)
+        {
+            var abc = PickNumbers(input);
+            _ran.Shuffle(abc);
+            int[] keys = new int[addCount];
+            Array.Copy(abc, keys, addCount);
+
+            foreach (var item in keys)
+            {
+                input.Add(item, 0);
+            }
+
+            rand.Shuffle(keys);
+
+            for (int i = 0; i < removeCount; i++)
+            {
+                input.Remove(keys[i]);
+            }
+
+            return input;
+        }
+
+        public BB<int, int> AddThenRemoveAtRandom(BB<int, int> input, Random rand, int addCount, int removeCount)
         {
             var abc = PickNumbers(input);
             _ran.Shuffle(abc);
@@ -476,6 +531,24 @@ namespace MyBenchmarks
             else
             {
                 input = new CC<int, int>(initCapacity);
+            }
+
+            return AddThenRemoveAtRandom(input, rand, size, size - newCount);
+        }
+
+
+
+        public BB<int, int> ZombiesAreScatteredBef(Random rand, int size, int removeCount, int initCapacity)
+        {
+            BB<int, int> input;
+            int newCount = size - removeCount;
+            if (initCapacity == 0.0f)
+            {
+                input = new BB<int, int>();
+            }
+            else
+            {
+                input = new BB<int, int>(initCapacity);
             }
 
             return AddThenRemoveAtRandom(input, rand, size, size - newCount);
